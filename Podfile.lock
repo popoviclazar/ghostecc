@@ -1,0 +1,16 @@
+PODS:
+  - LibSignalClient (0.105.0)
+
+DEPENDENCIES:
+  - LibSignalClient (from `vendor/libsignal`)
+
+EXTERNAL SOURCES:
+  LibSignalClient:
+    :path: vendor/libsignal
+
+SPEC CHECKSUMS:
+  LibSignalClient: e5b340ff5fb145274db5d90011b987d765ade1d3
+
+PODFILE CHECKSUM: 1549bfc61d97b19dfec48e3ab673e21895e18c25
+
+COCOAPODS: 1.17.0

@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Ghost ECC relay
+  version: 0.4.0
+  description: >
+    Anonymous one-way queues. No accounts and no Ghost IDs. Every queue operation is signed with
+    that queue's own Ed25519 key, see RELAY-PROTOCOL.md for the exact signed string. Message bodies
+    are opaque ciphertext kept in RAM only. All binary fields are standard Base64 with padding;
+    all times are integer Unix milliseconds. Every response, including errors, carries serverTime.
+servers:
+  - url: https://relay.example.com
+paths:
+  /v1/health:
+    get:
+      summary: Liveness and server time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /v1/queues:
+    post:
+      summary: Create a queue (recipient side), optionally holding an encrypted invitation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateQueueRequest' }
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateQueueResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/invitations/{senderId}:
+    get:
+      summary: Download the encrypted invitation of a queue that nobody has secured yet
+      parameters:
+        - { name: senderId, in: path, required: true, schema: { $ref: '#/components/schemas/QueueId' } }
+      responses:
+        '200':
+          description: Invitation ciphertext
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvitationResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/messages/{senderId}:
+    post:
+      summary: Put one ciphertext into a queue. The first valid sender secures the queue with senderKey.
+      parameters:
+        - { name: senderId, in: path, required: true, schema: { $ref: '#/components/schemas/QueueId' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendRequest' }
+      responses:
+        '200':
+          description: Accepted (idempotent for identical ciphertext)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SendResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/fetch:
+    post:
+      summary: Read up to 64 own queues at once (round-robin, at most 50 messages)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FetchRequest' }
+      responses:
+        '200':
+          description: Per-queue status and pending messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FetchResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/ack:
+    post:
+      summary: Delete received messages from an own queue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AckRequest' }
+      responses:
+        '200':
+          description: Removed count
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AckResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/notify:
+    post:
+      summary: Register (or with token null remove) an APNs device token for up to 64 own queues. RAM-only on the server.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotifyRequest' }
+      responses:
+        '200':
+          description: Per-queue status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotifyResponse' }
+        default: { $ref: '#/components/responses/Error' }
+  /v1/delete:
+    post:
+      summary: Delete an own queue and everything in it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeleteRequest' }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ServerTime' }
+        default: { $ref: '#/components/responses/Error' }
+components:
+  responses:
+    Error:
+      description: >
+        400 bad_*, 401 unauthorized | clock_skew | replay | not_secured, 404 not_found,
+        413 too_large, 415 unsupported_media_type, 429 rate_limited | queue_full, 503 capacity.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    QueueId: { type: string, pattern: '^[A-Za-z0-9_-]{32}$', description: 24 random bytes, base64url without padding }
+    MessageId: { type: string, pattern: '^[A-Za-z0-9_-]{22}$' }
+    Base64: { type: string, format: byte }
+    Millis: { type: integer, format: int64 }
+    Auth:
+      type: object
+      additionalProperties: false
+      required: [timestamp, nonce, signature]
+      properties:
+        timestamp: { $ref: '#/components/schemas/Millis' }
+        nonce: { type: string, pattern: '^[A-Za-z0-9_-]{22}$', description: 16 random bytes, base64url }
+        signature: { $ref: '#/components/schemas/Base64' }
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    ServerTime:
+      type: object
+      properties:
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    CreateQueueRequest:
+      type: object
+      required: [recipientKey, auth]
+      properties:
+        recipientKey: { $ref: '#/components/schemas/Base64' }
+        invitation: { $ref: '#/components/schemas/Base64' }
+        auth: { $ref: '#/components/schemas/Auth' }
+    CreateQueueResponse:
+      type: object
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        senderId: { $ref: '#/components/schemas/QueueId' }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    InvitationResponse:
+      type: object
+      properties:
+        invitation: { $ref: '#/components/schemas/Base64' }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    SendRequest:
+      type: object
+      required: [message, expiresAt, auth]
+      properties:
+        message: { $ref: '#/components/schemas/Base64' }
+        expiresAt: { $ref: '#/components/schemas/Millis' }
+        senderKey: { $ref: '#/components/schemas/Base64' }
+        auth: { $ref: '#/components/schemas/Auth' }
+    SendResponse:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/MessageId' }
+        status: { type: string, enum: [accepted] }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    FetchItem:
+      type: object
+      required: [recipientId, auth]
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        auth: { $ref: '#/components/schemas/Auth' }
+    FetchRequest:
+      type: object
+      required: [queues]
+      properties:
+        queues:
+          type: array
+          minItems: 1
+          maxItems: 64
+          items: { $ref: '#/components/schemas/FetchItem' }
+    QueueStatus:
+      type: object
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        status: { type: string, enum: [ok, not_found, unauthorized, clock_skew] }
+    RelayMessage:
+      type: object
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        id: { $ref: '#/components/schemas/MessageId' }
+        message: { $ref: '#/components/schemas/Base64' }
+        expiresAt: { $ref: '#/components/schemas/Millis' }
+    FetchResponse:
+      type: object
+      properties:
+        queues: { type: array, items: { $ref: '#/components/schemas/QueueStatus' } }
+        messages: { type: array, items: { $ref: '#/components/schemas/RelayMessage' } }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    AckRequest:
+      type: object
+      required: [recipientId, ids, auth]
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        ids: { type: array, minItems: 1, maxItems: 100, items: { $ref: '#/components/schemas/MessageId' } }
+        auth: { $ref: '#/components/schemas/Auth' }
+    AckResponse:
+      type: object
+      properties:
+        removed: { type: integer }
+        serverTime: { $ref: '#/components/schemas/Millis' }
+    DeleteRequest:
+      type: object
+      required: [recipientId, auth]
+      properties:
+        recipientId: { $ref: '#/components/schemas/QueueId' }
+        auth: { $ref: '#/components/schemas/Auth' }
+    NotifyRequest:
+      type: object
+      required: [environment, queues]
+      properties:
+        token: { type: string, nullable: true, pattern: '^[0-9a-f]{64,200}$', description: APNs device token (hex); null or missing removes it }
+        environment: { type: string, enum: [production, sandbox] }
+        queues:
+          type: array
+          minItems: 1
+          maxItems: 64
+          items: { $ref: '#/components/schemas/FetchItem' }
+    NotifyResponse:
+      type: object
+      properties:
+        queues: { type: array, items: { $ref: '#/components/schemas/QueueStatus' } }
+        serverTime: { $ref: '#/components/schemas/Millis' }

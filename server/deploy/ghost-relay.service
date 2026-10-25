@@ -1,0 +1,50 @@
+[Unit]
+Description=Ghost ECC relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Promijeni na svoju javnu adresu. Mora biti identična adresi koju korisnici unose u aplikaciju.
+Environment=GHOST_ORIGIN=https://relay.example.com
+Environment=GHOST_LISTEN=127.0.0.1:8080
+Environment=GHOST_DATA_DIR=/var/lib/ghost-relay
+Environment=GHOST_TRUST_PROXY=1
+Environment=GHOST_MAX_MEMORY_MB=1024
+# Push notifikacije (opciono): podešava ih deploy/install.sh --apns-key.
+EnvironmentFile=-/etc/ghost-relay/apns.env
+ExecStart=/usr/bin/node /opt/ghost-relay/src/main.js
+Restart=on-failure
+RestartSec=2
+
+DynamicUser=yes
+StateDirectory=ghost-relay
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ProtectProc=invisible
+RemoveIPC=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+# Šifrati poruka ne smiju završiti u swap-u niti u core dump-u.
+MemoryMax=1536M
+MemorySwapMax=0
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

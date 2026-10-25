@@ -1,0 +1,22 @@
+# Built or downloaded on the Mac
+vendor/
+Pods/
+build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Local server data and secrets
+server/.dev/
+server/data/
+*.p8
+*.pem
+*.key
+
+# macOS / Python
+.DS_Store
+__pycache__/
+
+# Internal notes, release steps and site sources (kept locally, never published)
+private/
