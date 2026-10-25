@@ -18,7 +18,5 @@
 		<key>UIColorName</key>
 		<string>LaunchBackground</string>
 	</dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
 </dict>
 </plist>
