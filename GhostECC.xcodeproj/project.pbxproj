@@ -7,36 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		000000000000000000000002 /* Core/AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* Core/AppConfig.swift */; };
-		000000000000000000000004 /* Core/AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* Core/AppStore.swift */; };
-		000000000000000000000006 /* Core/Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* Core/Audio.swift */; };
-		000000000000000000000008 /* Core/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* Core/Models.swift */; };
-		00000000000000000000000A /* Core/PhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* Core/PhotoTools.swift */; };
+		000000000000000000000002 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* AppConfig.swift */; };
+		000000000000000000000004 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* AppStore.swift */; };
+		000000000000000000000006 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* Audio.swift */; };
+		000000000000000000000008 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* Models.swift */; };
+		00000000000000000000000A /* PhotoTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* PhotoTools.swift */; };
 		00000000000000000000000C /* GhostECCApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000B /* GhostECCApp.swift */; };
-		00000000000000000000000E /* Networking/APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* Networking/APIModels.swift */; };
-		000000000000000000000010 /* Networking/LocalPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* Networking/LocalPeer.swift */; };
-		000000000000000000000012 /* Networking/RelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* Networking/RelayClient.swift */; };
-		000000000000000000000014 /* Security/KeychainVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Security/KeychainVault.swift */; };
-		000000000000000000000016 /* Security/SignalEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Security/SignalEngine.swift */; };
-		000000000000000000000018 /* Security/SignalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Security/SignalStore.swift */; };
-		00000000000000000000001A /* Views/AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* Views/AboutView.swift */; };
-		00000000000000000000001C /* Views/ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001B /* Views/ChatView.swift */; };
-		00000000000000000000001E /* Views/ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001D /* Views/ContactDetailView.swift */; };
-		000000000000000000000020 /* Views/IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001F /* Views/IdentityView.swift */; };
-		000000000000000000000022 /* Views/InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000021 /* Views/InboxView.swift */; };
-		000000000000000000000024 /* Views/PrivacyShield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000023 /* Views/PrivacyShield.swift */; };
-		000000000000000000000026 /* Views/PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000025 /* Views/PrivacyView.swift */; };
-		000000000000000000000028 /* Views/QRScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000027 /* Views/QRScanView.swift */; };
-		00000000000000000000002A /* Views/RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000029 /* Views/RootView.swift */; };
-		00000000000000000000002C /* Views/Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002B /* Views/Theme.swift */; };
+		00000000000000000000000E /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* APIModels.swift */; };
+		000000000000000000000010 /* LocalPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* LocalPeer.swift */; };
+		000000000000000000000012 /* RelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* RelayClient.swift */; };
+		000000000000000000000014 /* KeychainVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* KeychainVault.swift */; };
+		000000000000000000000016 /* SignalEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* SignalEngine.swift */; };
+		000000000000000000000018 /* SignalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* SignalStore.swift */; };
+		00000000000000000000001A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* AboutView.swift */; };
+		00000000000000000000001C /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001B /* ChatView.swift */; };
+		00000000000000000000001E /* ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001D /* ContactDetailView.swift */; };
+		000000000000000000000020 /* IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001F /* IdentityView.swift */; };
+		000000000000000000000022 /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000021 /* InboxView.swift */; };
+		000000000000000000000024 /* PrivacyShield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000023 /* PrivacyShield.swift */; };
+		000000000000000000000026 /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000025 /* PrivacyView.swift */; };
+		000000000000000000000028 /* QRScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000027 /* QRScanView.swift */; };
+		00000000000000000000002A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000029 /* RootView.swift */; };
+		00000000000000000000002C /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002B /* Theme.swift */; };
 		00000000000000000000003B /* PrivacyRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003A /* PrivacyRulesTests.swift */; };
 		00000000000000000000003D /* SignalIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003C /* SignalIntegrationTests.swift */; };
 		00000000000000000000004D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002D /* Assets.xcassets */; };
 		00000000000000000000004E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002E /* PrivacyInfo.xcprivacy */; };
 		00000000000000000000004F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000036 /* Localizable.strings */; };
 		000000000000000000000050 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000038 /* InfoPlist.strings */; };
-		54F544D9A577E191E40D1151 /* Pods_GhostECCTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D748CA83468A28E86011DC22 /* Pods_GhostECCTests.framework */; };
-		998C002118C4F3A634F3BA40 /* Pods_GhostECC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 11CA0E6F3308D98740AB629E /* Pods_GhostECC.framework */; };
+		80C33EB7996921C149885295 /* Pods_GhostECC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */; };
+		ADA30DA1DA6CE3EB2A5A71D8 /* Pods_GhostECCTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,28 +50,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		000000000000000000000001 /* Core/AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/AppConfig.swift; sourceTree = "<group>"; };
-		000000000000000000000003 /* Core/AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/AppStore.swift; sourceTree = "<group>"; };
-		000000000000000000000005 /* Core/Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Audio.swift; sourceTree = "<group>"; };
-		000000000000000000000007 /* Core/Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Models.swift; sourceTree = "<group>"; };
-		000000000000000000000009 /* Core/PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/PhotoTools.swift; sourceTree = "<group>"; };
+		000000000000000000000001 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/AppConfig.swift; sourceTree = "<group>"; };
+		000000000000000000000003 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/AppStore.swift; sourceTree = "<group>"; };
+		000000000000000000000005 /* Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Audio.swift; sourceTree = "<group>"; };
+		000000000000000000000007 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Models.swift; sourceTree = "<group>"; };
+		000000000000000000000009 /* PhotoTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/PhotoTools.swift; sourceTree = "<group>"; };
 		00000000000000000000000B /* GhostECCApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostECCApp.swift; sourceTree = "<group>"; };
-		00000000000000000000000D /* Networking/APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/APIModels.swift; sourceTree = "<group>"; };
-		00000000000000000000000F /* Networking/LocalPeer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/LocalPeer.swift; sourceTree = "<group>"; };
-		000000000000000000000011 /* Networking/RelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/RelayClient.swift; sourceTree = "<group>"; };
-		000000000000000000000013 /* Security/KeychainVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/KeychainVault.swift; sourceTree = "<group>"; };
-		000000000000000000000015 /* Security/SignalEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalEngine.swift; sourceTree = "<group>"; };
-		000000000000000000000017 /* Security/SignalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalStore.swift; sourceTree = "<group>"; };
-		000000000000000000000019 /* Views/AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AboutView.swift; sourceTree = "<group>"; };
-		00000000000000000000001B /* Views/ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ChatView.swift; sourceTree = "<group>"; };
-		00000000000000000000001D /* Views/ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContactDetailView.swift; sourceTree = "<group>"; };
-		00000000000000000000001F /* Views/IdentityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/IdentityView.swift; sourceTree = "<group>"; };
-		000000000000000000000021 /* Views/InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/InboxView.swift; sourceTree = "<group>"; };
-		000000000000000000000023 /* Views/PrivacyShield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyShield.swift; sourceTree = "<group>"; };
-		000000000000000000000025 /* Views/PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyView.swift; sourceTree = "<group>"; };
-		000000000000000000000027 /* Views/QRScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/QRScanView.swift; sourceTree = "<group>"; };
-		000000000000000000000029 /* Views/RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootView.swift; sourceTree = "<group>"; };
-		00000000000000000000002B /* Views/Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Theme.swift; sourceTree = "<group>"; };
+		00000000000000000000000D /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/APIModels.swift; sourceTree = "<group>"; };
+		00000000000000000000000F /* LocalPeer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/LocalPeer.swift; sourceTree = "<group>"; };
+		000000000000000000000011 /* RelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/RelayClient.swift; sourceTree = "<group>"; };
+		000000000000000000000013 /* KeychainVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/KeychainVault.swift; sourceTree = "<group>"; };
+		000000000000000000000015 /* SignalEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalEngine.swift; sourceTree = "<group>"; };
+		000000000000000000000017 /* SignalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalStore.swift; sourceTree = "<group>"; };
+		000000000000000000000019 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AboutView.swift; sourceTree = "<group>"; };
+		00000000000000000000001B /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ChatView.swift; sourceTree = "<group>"; };
+		00000000000000000000001D /* ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContactDetailView.swift; sourceTree = "<group>"; };
+		00000000000000000000001F /* IdentityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/IdentityView.swift; sourceTree = "<group>"; };
+		000000000000000000000021 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/InboxView.swift; sourceTree = "<group>"; };
+		000000000000000000000023 /* PrivacyShield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyShield.swift; sourceTree = "<group>"; };
+		000000000000000000000025 /* PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyView.swift; sourceTree = "<group>"; };
+		000000000000000000000027 /* QRScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/QRScanView.swift; sourceTree = "<group>"; };
+		000000000000000000000029 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootView.swift; sourceTree = "<group>"; };
+		00000000000000000000002B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Theme.swift; sourceTree = "<group>"; };
 		00000000000000000000002D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		00000000000000000000002E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		00000000000000000000002F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -86,12 +86,12 @@
 		00000000000000000000003C /* SignalIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalIntegrationTests.swift; sourceTree = "<group>"; };
 		00000000000000000000003F /* GhostECC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GhostECC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000040 /* GhostECCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GhostECCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		11CA0E6F3308D98740AB629E /* Pods_GhostECC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7987A02A25F0AC6B7E2F12A9 /* Pods-GhostECC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.release.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.release.xcconfig"; sourceTree = "<group>"; };
-		C79FAB2D41B01D1CFB3BA7EC /* Pods-GhostECCTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.release.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.release.xcconfig"; sourceTree = "<group>"; };
-		C9472D1BC942C17B6F54A355 /* Pods-GhostECC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.debug.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.debug.xcconfig"; sourceTree = "<group>"; };
-		D748CA83468A28E86011DC22 /* Pods_GhostECCTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECCTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3D9F490888013AC6159489B /* Pods-GhostECCTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.debug.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.debug.xcconfig"; sourceTree = "<group>"; };
+		2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.debug.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.debug.xcconfig"; sourceTree = "<group>"; };
+		5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.release.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.release.xcconfig"; sourceTree = "<group>"; };
+		A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECCTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.release.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.release.xcconfig"; sourceTree = "<group>"; };
+		EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.debug.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,7 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				998C002118C4F3A634F3BA40 /* Pods_GhostECC.framework in Frameworks */,
+				80C33EB7996921C149885295 /* Pods_GhostECC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,7 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				54F544D9A577E191E40D1151 /* Pods_GhostECCTests.framework in Frameworks */,
+				ADA30DA1DA6CE3EB2A5A71D8 /* Pods_GhostECCTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,28 +117,28 @@
 		000000000000000000000039 /* GhostECC */ = {
 			isa = PBXGroup;
 			children = (
-				000000000000000000000001 /* Core/AppConfig.swift */,
-				000000000000000000000003 /* Core/AppStore.swift */,
-				000000000000000000000005 /* Core/Audio.swift */,
-				000000000000000000000007 /* Core/Models.swift */,
-				000000000000000000000009 /* Core/PhotoTools.swift */,
+				000000000000000000000001 /* AppConfig.swift */,
+				000000000000000000000003 /* AppStore.swift */,
+				000000000000000000000005 /* Audio.swift */,
+				000000000000000000000007 /* Models.swift */,
+				000000000000000000000009 /* PhotoTools.swift */,
 				00000000000000000000000B /* GhostECCApp.swift */,
-				00000000000000000000000D /* Networking/APIModels.swift */,
-				00000000000000000000000F /* Networking/LocalPeer.swift */,
-				000000000000000000000011 /* Networking/RelayClient.swift */,
-				000000000000000000000013 /* Security/KeychainVault.swift */,
-				000000000000000000000015 /* Security/SignalEngine.swift */,
-				000000000000000000000017 /* Security/SignalStore.swift */,
-				000000000000000000000019 /* Views/AboutView.swift */,
-				00000000000000000000001B /* Views/ChatView.swift */,
-				00000000000000000000001D /* Views/ContactDetailView.swift */,
-				00000000000000000000001F /* Views/IdentityView.swift */,
-				000000000000000000000021 /* Views/InboxView.swift */,
-				000000000000000000000023 /* Views/PrivacyShield.swift */,
-				000000000000000000000025 /* Views/PrivacyView.swift */,
-				000000000000000000000027 /* Views/QRScanView.swift */,
-				000000000000000000000029 /* Views/RootView.swift */,
-				00000000000000000000002B /* Views/Theme.swift */,
+				00000000000000000000000D /* APIModels.swift */,
+				00000000000000000000000F /* LocalPeer.swift */,
+				000000000000000000000011 /* RelayClient.swift */,
+				000000000000000000000013 /* KeychainVault.swift */,
+				000000000000000000000015 /* SignalEngine.swift */,
+				000000000000000000000017 /* SignalStore.swift */,
+				000000000000000000000019 /* AboutView.swift */,
+				00000000000000000000001B /* ChatView.swift */,
+				00000000000000000000001D /* ContactDetailView.swift */,
+				00000000000000000000001F /* IdentityView.swift */,
+				000000000000000000000021 /* InboxView.swift */,
+				000000000000000000000023 /* PrivacyShield.swift */,
+				000000000000000000000025 /* PrivacyView.swift */,
+				000000000000000000000027 /* QRScanView.swift */,
+				000000000000000000000029 /* RootView.swift */,
+				00000000000000000000002B /* Theme.swift */,
 				00000000000000000000002D /* Assets.xcassets */,
 				00000000000000000000002E /* PrivacyInfo.xcprivacy */,
 				00000000000000000000002F /* Info.plist */,
@@ -173,27 +173,27 @@
 				000000000000000000000039 /* GhostECC */,
 				00000000000000000000003E /* Tests */,
 				000000000000000000000041 /* Products */,
-				7CF80F09E3E32DC7DDC25BC6 /* Pods */,
-				D8DD2E08A47124E26E4EB5DD /* Frameworks */,
+				BDF55D508824CA75A4D106E2 /* Pods */,
+				DF16D827C4A58C7DD918EB37 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		7CF80F09E3E32DC7DDC25BC6 /* Pods */ = {
+		BDF55D508824CA75A4D106E2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C9472D1BC942C17B6F54A355 /* Pods-GhostECC.debug.xcconfig */,
-				7987A02A25F0AC6B7E2F12A9 /* Pods-GhostECC.release.xcconfig */,
-				F3D9F490888013AC6159489B /* Pods-GhostECCTests.debug.xcconfig */,
-				C79FAB2D41B01D1CFB3BA7EC /* Pods-GhostECCTests.release.xcconfig */,
+				2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */,
+				BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */,
+				EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */,
+				5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		D8DD2E08A47124E26E4EB5DD /* Frameworks */ = {
+		DF16D827C4A58C7DD918EB37 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				11CA0E6F3308D98740AB629E /* Pods_GhostECC.framework */,
-				D748CA83468A28E86011DC22 /* Pods_GhostECCTests.framework */,
+				A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */,
+				BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -205,11 +205,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 000000000000000000000048 /* Build configuration list for PBXNativeTarget "GhostECC" */;
 			buildPhases = (
-				751F571CD4FE2F279DA99BB5 /* [CP] Check Pods Manifest.lock */,
+				7F0671515DCBE8CFCFB6456D /* [CP] Check Pods Manifest.lock */,
 				00000000000000000000004C /* Sources */,
 				000000000000000000000052 /* Frameworks */,
 				000000000000000000000051 /* Resources */,
-				951CBD575BA9DABFBC5B2D8C /* [CP] Embed Pods Frameworks */,
+				DEAD660402EA4FE56694EDE3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -224,7 +224,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00000000000000000000004B /* Build configuration list for PBXNativeTarget "GhostECCTests" */;
 			buildPhases = (
-				1AB0353032062423C1717488 /* [CP] Check Pods Manifest.lock */,
+				7BA3C66BA2644F65EA494E61 /* [CP] Check Pods Manifest.lock */,
 				000000000000000000000053 /* Sources */,
 				000000000000000000000055 /* Frameworks */,
 				000000000000000000000054 /* Resources */,
@@ -297,7 +297,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1AB0353032062423C1717488 /* [CP] Check Pods Manifest.lock */ = {
+		7BA3C66BA2644F65EA494E61 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -319,7 +319,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		751F571CD4FE2F279DA99BB5 /* [CP] Check Pods Manifest.lock */ = {
+		7F0671515DCBE8CFCFB6456D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -341,7 +341,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		951CBD575BA9DABFBC5B2D8C /* [CP] Embed Pods Frameworks */ = {
+		DEAD660402EA4FE56694EDE3 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -349,13 +349,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-GhostECC/Pods-GhostECC-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-GhostECC/Pods-GhostECC-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -369,28 +365,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				000000000000000000000002 /* Core/AppConfig.swift in Sources */,
-				000000000000000000000004 /* Core/AppStore.swift in Sources */,
-				000000000000000000000006 /* Core/Audio.swift in Sources */,
-				000000000000000000000008 /* Core/Models.swift in Sources */,
-				00000000000000000000000A /* Core/PhotoTools.swift in Sources */,
+				000000000000000000000002 /* AppConfig.swift in Sources */,
+				000000000000000000000004 /* AppStore.swift in Sources */,
+				000000000000000000000006 /* Audio.swift in Sources */,
+				000000000000000000000008 /* Models.swift in Sources */,
+				00000000000000000000000A /* PhotoTools.swift in Sources */,
 				00000000000000000000000C /* GhostECCApp.swift in Sources */,
-				00000000000000000000000E /* Networking/APIModels.swift in Sources */,
-				000000000000000000000010 /* Networking/LocalPeer.swift in Sources */,
-				000000000000000000000012 /* Networking/RelayClient.swift in Sources */,
-				000000000000000000000014 /* Security/KeychainVault.swift in Sources */,
-				000000000000000000000016 /* Security/SignalEngine.swift in Sources */,
-				000000000000000000000018 /* Security/SignalStore.swift in Sources */,
-				00000000000000000000001A /* Views/AboutView.swift in Sources */,
-				00000000000000000000001C /* Views/ChatView.swift in Sources */,
-				00000000000000000000001E /* Views/ContactDetailView.swift in Sources */,
-				000000000000000000000020 /* Views/IdentityView.swift in Sources */,
-				000000000000000000000022 /* Views/InboxView.swift in Sources */,
-				000000000000000000000024 /* Views/PrivacyShield.swift in Sources */,
-				000000000000000000000026 /* Views/PrivacyView.swift in Sources */,
-				000000000000000000000028 /* Views/QRScanView.swift in Sources */,
-				00000000000000000000002A /* Views/RootView.swift in Sources */,
-				00000000000000000000002C /* Views/Theme.swift in Sources */,
+				00000000000000000000000E /* APIModels.swift in Sources */,
+				000000000000000000000010 /* LocalPeer.swift in Sources */,
+				000000000000000000000012 /* RelayClient.swift in Sources */,
+				000000000000000000000014 /* KeychainVault.swift in Sources */,
+				000000000000000000000016 /* SignalEngine.swift in Sources */,
+				000000000000000000000018 /* SignalStore.swift in Sources */,
+				00000000000000000000001A /* AboutView.swift in Sources */,
+				00000000000000000000001C /* ChatView.swift in Sources */,
+				00000000000000000000001E /* ContactDetailView.swift in Sources */,
+				000000000000000000000020 /* IdentityView.swift in Sources */,
+				000000000000000000000022 /* InboxView.swift in Sources */,
+				000000000000000000000024 /* PrivacyShield.swift in Sources */,
+				000000000000000000000026 /* PrivacyView.swift in Sources */,
+				000000000000000000000028 /* QRScanView.swift in Sources */,
+				00000000000000000000002A /* RootView.swift in Sources */,
+				00000000000000000000002C /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,18 +460,19 @@
 		};
 		000000000000000000000046 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C9472D1BC942C17B6F54A355 /* Pods-GhostECC.debug.xcconfig */;
+			baseConfigurationReference = 2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = GhostECC/GhostECC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L27TXB4S6A;
 				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";
@@ -494,17 +491,18 @@
 		};
 		000000000000000000000047 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7987A02A25F0AC6B7E2F12A9 /* Pods-GhostECC.release.xcconfig */;
+			baseConfigurationReference = BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = GhostECC/GhostECC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L27TXB4S6A;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";
@@ -522,10 +520,11 @@
 		};
 		000000000000000000000049 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F3D9F490888013AC6159489B /* Pods-GhostECCTests.debug.xcconfig */;
+			baseConfigurationReference = EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.ghostecc.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -537,10 +536,11 @@
 		};
 		00000000000000000000004A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C79FAB2D41B01D1CFB3BA7EC /* Pods-GhostECCTests.release.xcconfig */;
+			baseConfigurationReference = 5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.ghostecc.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

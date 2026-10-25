@@ -274,7 +274,7 @@ final class AppStore: ObservableObject {
                 payload = PrivatePayload.hello(sender: me, recipient: contact.ghostID, reply: ReplyAddress(server: inbound.server, senderID: inbound.senderID))
             case .ready:
                 payload = PrivatePayload.ready(sender: me, recipient: contact.ghostID)
-            case .text, .photo:
+            case .text, .photo, .voice, .file:
                 return
             }
             let wire = try await engine.encrypt(payload)

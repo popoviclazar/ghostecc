@@ -93,7 +93,7 @@ final class VoiceRecorder: ObservableObject {
     func start() throws {
         guard !recording else { return }
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth])
+        try session.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try session.setActive(true)
         let input = engine.inputNode
         let inputFormat = input.outputFormat(forBus: 0)
