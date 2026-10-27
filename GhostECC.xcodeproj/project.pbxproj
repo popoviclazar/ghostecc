@@ -477,7 +477,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";
@@ -508,7 +507,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";

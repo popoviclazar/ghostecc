@@ -9,7 +9,7 @@
 - **End-to-end encryption:** the Signal Protocol with post-quantum protection (PQXDH and the SPQR ratchet), via libsignal.
 - **Verify in person:** scan each other's safety code (or compare the 60-digit number). The app sends nothing until the contact is verified, and a contact's key can never change silently.
 - **Disappearing by design:** messages, photos, voice messages and files live only in memory, for 24 hours at most (or 1 hour, or 5 minutes).
-- **Device protection:** Face ID / passcode lock, content hidden in the app switcher and during screen recording, optional wipe of all chats when leaving the app, photo metadata (EXIF/GPS) stripped before sending.
+- **Device protection:** Face ID or an optional app passcode (with optional wipe after 10 wrong attempts), content hidden in the app switcher and during screen recording, optional wipe of all chats when leaving the app, photo metadata (EXIF/GPS) stripped before sending.
 - **Quiet notifications:** if enabled, a notification only ever says "New message", with no name or content.
 - **Ghost Lab:** try encrypted messaging on your own, without a second person.
 - English and Serbian.

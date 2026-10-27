@@ -158,6 +158,21 @@ final class PrivacyRulesTests: XCTestCase {
         XCTAssertEqual(MessageMeta.remaining(125), "2 min")
         XCTAssertEqual(MessageMeta.remaining(9), "9 s")
     }
+    func testAppPasscode() throws {
+        XCTAssertTrue(AppPIN.isValidFormat("123456"))
+        XCTAssertFalse(AppPIN.isValidFormat("12345"))
+        XCTAssertFalse(AppPIN.isValidFormat("12345a"))
+        XCTAssertFalse(AppPIN.isValidFormat(String(repeating: "1", count: 17)))
+        let record = try AppPIN.makeRecord("246810")
+        XCTAssertTrue(AppPIN.matches("246810", record))
+        XCTAssertFalse(AppPIN.matches("246811", record))
+        XCTAssertFalse(record.hash.isEmpty)
+        XCTAssertEqual(AppPIN.delay(afterFailures: 4), 0)
+        XCTAssertEqual(AppPIN.delay(afterFailures: 5), 30)
+        XCTAssertEqual(AppPIN.delay(afterFailures: 9), 3600)
+        let restored = try WireCodec.decoder().decode(PinRecord.self, from: WireCodec.encoder().encode(record))
+        XCTAssertTrue(AppPIN.matches("246810", restored))
+    }
     func testNotifyDigestMatchesServerVector() {
         // Same vector as server/test/push.test.js.
         XCTAssertEqual(String(decoding: RelayClient.notifyDigestInput(token: "ab", environment: "sandbox"), as: UTF8.self), "ab|sandbox")

@@ -23,6 +23,9 @@ final class AppStore: ObservableObject {
     @Published private(set) var networkStatus = String(localized: "Nema aktivnih veza")
     @Published private(set) var networkHealthy = false
     @Published var pendingLink: String?
+    /// Verifier of the optional app passcode; nil means the device's own authentication is used.
+    @Published private(set) var pinRecord: PinRecord?
+    var pinEnabled: Bool { pinRecord != nil }
     @Published var error: String?
     @Published var notice: String?
 
@@ -72,6 +75,7 @@ final class AppStore: ObservableObject {
     func boot() async {
         loading = true
         do {
+            loadPin()
             if let local = try await engine.loadIdentity() {
                 identity = local.0; publicKey = local.1
                 if let metadata = try vault.load("metadata") {
@@ -98,16 +102,113 @@ final class AppStore: ObservableObject {
         await promptForNotificationsIfNeeded()
     }
 
+    /// Without an app passcode: Face ID / Touch ID with the device passcode as fallback.
+    /// With an app passcode: optionally Face ID only (no device passcode fallback); otherwise the passcode screen.
     func unlock() async {
         guard !unlocking else { return }; unlocking = true; defer { unlocking = false }
+        if var record = pinRecord {
+            guard settings.pinWithBiometrics else { return }
+            let context = LAContext()
+            context.localizedFallbackTitle = ""
+            var unavailable: NSError?
+            guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &unavailable) else { return }
+            guard (try? await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: String(localized: "Otključaj Ghost ECC"))) == true else { return }
+            if let saved = record.biometryState, saved != context.evaluatedPolicyDomainState {
+                notice = String(localized: "Face ID ili Touch ID podaci na telefonu su promijenjeni. Unesi šifru aplikacije.")
+                return
+            }
+            if record.failedAttempts > 0 || record.lockedUntil != nil {
+                record.failedAttempts = 0; record.lockedUntil = nil
+                try? savePin(record)
+            }
+            await finishUnlock()
+            return
+        }
         do {
             let context = LAContext()
             let accepted = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: String(localized: "Otključaj Ghost ECC"))
             guard accepted else { return }
-            if identity == nil { await boot() }
-            locked = false; purge(); startSync()
-            await promptForNotificationsIfNeeded()
+            await finishUnlock()
         } catch { self.error = String(localized: "Otključavanje nije uspjelo.") }
+    }
+
+    private func finishUnlock() async {
+        if identity == nil { await boot() }
+        locked = false; purge(); startSync()
+        await promptForNotificationsIfNeeded()
+    }
+
+    // MARK: - App passcode
+
+    private func loadPin() {
+        guard let data = try? vault.load("pin") else { pinRecord = nil; return }
+        pinRecord = try? WireCodec.decoder().decode(PinRecord.self, from: data)
+    }
+
+    private func savePin(_ record: PinRecord?) throws {
+        if let record { try vault.save(WireCodec.encoder().encode(record), account: "pin") }
+        else { try vault.delete("pin") }
+        pinRecord = record
+    }
+
+    /// Current Face ID / Touch ID enrollment fingerprint, or nil when biometrics are unavailable.
+    static func biometryState() -> Data? {
+        let context = LAContext()
+        var unavailable: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &unavailable) else { return nil }
+        return context.evaluatedPolicyDomainState
+    }
+
+    /// Checking is deliberately slow (PBKDF2), so it runs off the main thread.
+    private func pinMatches(_ pin: String, _ record: PinRecord) async -> Bool {
+        await Task.detached(priority: .userInitiated) { AppPIN.matches(pin, record) }.value
+    }
+
+    func unlock(pin: String) async {
+        guard !unlocking, var record = pinRecord else { return }
+        if let until = record.lockedUntil, until > Date() { return }
+        unlocking = true; defer { unlocking = false }
+        if await pinMatches(pin, record) {
+            record.failedAttempts = 0; record.lockedUntil = nil
+            record.biometryState = Self.biometryState()
+            try? savePin(record)
+            await finishUnlock()
+            return
+        }
+        record.failedAttempts += 1
+        let wait = AppPIN.delay(afterFailures: record.failedAttempts)
+        record.lockedUntil = wait > 0 ? Date().addingTimeInterval(wait) : nil
+        try? savePin(record)
+        if settings.pinWipeAfterFailures && record.failedAttempts >= AppPIN.wipeAfter {
+            unlocking = false
+            await eraseAccount()
+            notice = String(localized: "Previše pogrešnih šifri: identitet, ključevi i kontakti su obrisani sa ovog uređaja.")
+        }
+    }
+
+    /// Setting a passcode turns the lock on; changing it needs the current one.
+    func setPIN(_ pin: String, current: String?) async -> Bool {
+        guard !busy else { return false }
+        busy = true; defer { busy = false }
+        if let record = pinRecord {
+            guard let current, await pinMatches(current, record) else { error = String(localized: "Trenutna šifra nije tačna."); return false }
+        }
+        guard AppPIN.isValidFormat(pin) else { error = String(localized: "Šifra mora imati od 6 do 16 cifara."); return false }
+        do {
+            var record = try await Task.detached(priority: .userInitiated) { try AppPIN.makeRecord(pin) }.value
+            record.biometryState = Self.biometryState()
+            try savePin(record)
+            if !settings.lockEnabled { var value = settings; value.lockEnabled = true; updateSettings(value) }
+            notice = String(localized: "Šifra aplikacije je sačuvana. Šifra telefona više ne otključava Ghost ECC.")
+            return true
+        } catch { self.error = error.localizedDescription; return false }
+    }
+
+    func removePIN(current: String) async -> Bool {
+        guard !busy, let record = pinRecord else { return false }
+        busy = true; defer { busy = false }
+        guard await pinMatches(current, record) else { error = String(localized: "Trenutna šifra nije tačna."); return false }
+        do { try savePin(nil); return true } catch { self.error = error.localizedDescription; return false }
     }
 
     /// Inactive (Control Center, app switcher) only covers the screen; background locks and stops networking.
@@ -761,6 +862,8 @@ final class AppStore: ObservableObject {
         do {
             try await engine.deleteIdentity()
             try vault.delete("metadata")
+            try vault.delete("pin")
+            pinRecord = nil
         } catch {
             self.error = error.localizedDescription
             startSync()

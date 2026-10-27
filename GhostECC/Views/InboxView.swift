@@ -92,7 +92,7 @@ struct InboxView: View {
                         .swipeActions { Button("Obriši", role: .destructive) { store.deleteContact(contact.id) } }
                 }
             }.scrollContentBackground(.hidden).background(GhostTheme.background)
-                .navigationTitle("Razgovori").searchable(text: $search, prompt: "Ime ili Ghost ID")
+                .navigationTitle("Razgovori").searchable(text: $search, prompt: String(localized: "Ime ili Ghost ID"))
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Menu {

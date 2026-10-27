@@ -23,6 +23,10 @@ Ghost ECC has **not yet had an independent security audit**.
 - **Unwanted contact:** only someone holding your one-time invitation can reach you; the first valid sender locks the mailbox to their key.
 - **On the device:** keys and contacts in the Keychain (`WhenUnlockedThisDeviceOnly`, never synced); messages, photos, voice messages and files only in memory; Face ID / passcode lock; content hidden in the app switcher and during screen recording; optional wipe of all chats when leaving the app; third-party keyboards blocked; photo metadata stripped.
 
+## App passcode
+
+Optional, under Privacy → Device. With a passcode set, the device passcode no longer opens Ghost ECC; Face ID / Touch ID can stay enabled as a shortcut. The passcode (6–16 digits) is never stored: only a verifier, PBKDF2-SHA256 with 400,000 iterations and a random salt, bound through HMAC to a key inside the Secure Enclave where available, so guesses have to be made on the phone itself. Waiting time grows after 5 wrong attempts up to one hour, and an optional setting erases the identity after 10. If someone adds a face or finger to the phone, biometrics stop opening the app until the passcode is entered. The passcode controls access to the app; the keys themselves remain protected by the iOS Keychain.
+
 ## What it does not protect
 
 - **Network metadata:** the relay sees IP addresses, timing, padded packet sizes and which mailboxes one client polls together. There is no onion routing; a VPN or Tor reduces this.

@@ -39,6 +39,8 @@ struct AppSettings: Codable, Equatable {
     var notificationsPrompted = false
     var inAppSound = true
     var wipeOnLeave = false
+    var pinWithBiometrics = true
+    var pinWipeAfterFailures = false
 }
 extension AppSettings {
     // Missing keys fall back to defaults, so settings saved by an older version still load.
@@ -55,6 +57,8 @@ extension AppSettings {
         notificationsPrompted = try container.decodeIfPresent(Bool.self, forKey: .notificationsPrompted) ?? notificationsPrompted
         inAppSound = try container.decodeIfPresent(Bool.self, forKey: .inAppSound) ?? inAppSound
         wipeOnLeave = try container.decodeIfPresent(Bool.self, forKey: .wipeOnLeave) ?? wipeOnLeave
+        pinWithBiometrics = try container.decodeIfPresent(Bool.self, forKey: .pinWithBiometrics) ?? pinWithBiometrics
+        pinWipeAfterFailures = try container.decodeIfPresent(Bool.self, forKey: .pinWipeAfterFailures) ?? pinWipeAfterFailures
     }
 }
 struct LocalMetadata: Codable {

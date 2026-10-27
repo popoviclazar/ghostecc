@@ -24,8 +24,12 @@ struct RootView: View {
                     if store.captured && store.settings.hideDuringCapture {
                         Text("Zaustavi snimanje ili dijeljenje ekrana.").foregroundStyle(.secondary).multilineTextAlignment(.center)
                     } else if !store.covered {
-                        Text("Tvoj privatni prostor je zaključan.").foregroundStyle(.secondary)
-                        PrimaryButton(title: "Otključaj") { Task { await store.unlock() } }.padding(.horizontal, 48)
+                        if store.pinEnabled {
+                            PinUnlockView()
+                        } else {
+                            Text("Tvoj privatni prostor je zaključan.").foregroundStyle(.secondary)
+                            PrimaryButton(title: "Otključaj") { Task { await store.unlock() } }.padding(.horizontal, 48)
+                        }
                     }
                 }.padding()
             }

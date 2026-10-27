@@ -22,7 +22,9 @@
 "Dostignut je limit ove verzije." = "Dostignut je limit ove verzije.";
 "Dozvoli pristup mikrofonu u iOS podešavanjima: Podešavanja → Ghost ECC → Mikrofon." = "Dozvoli pristup mikrofonu u iOS podešavanjima: Podešavanja → Ghost ECC → Mikrofon.";
 "Enkripcija: libsignal, © Signal Messenger, LLC, licenca GNU AGPL v3.0. Ghost ECC nije proizvod kompanije Signal niti je ona podržava." = "Enkripcija: libsignal, © Signal Messenger, LLC, licenca GNU AGPL v3.0. Ghost ECC nije proizvod kompanije Signal niti je ona podržava.";
-"Face ID, Touch ID ili šifra uređaja. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana." = "Face ID, Touch ID ili šifra uređaja. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana.";
+"Face ID ili Touch ID podaci na telefonu su promijenjeni. Unesi šifru aplikacije." = "Face ID ili Touch ID podaci na telefonu su promijenjeni. Unesi šifru aplikacije.";
+"Face ID uz šifru aplikacije" = "Face ID uz šifru aplikacije";
+"Face ID, Touch ID ili šifra uređaja. Sa šifrom aplikacije, šifra telefona više ne otključava Ghost ECC. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana." = "Face ID, Touch ID ili šifra uređaja. Sa šifrom aplikacije, šifra telefona više ne otključava Ghost ECC. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana.";
 "Fajl" = "Fajl";
 "Fajl: %@" = "Fajl: %@";
 "Fotografija" = "Fotografija";
@@ -30,6 +32,7 @@
 "GHOST ECC" = "GHOST ECC";
 "Ghost ECC" = "Ghost ECC";
 "Ghost ECC je softver otvorenog koda pod licencom GNU Affero General Public License v3.0. Izvorni kod ove verzije je javno dostupan na linku iznad." = "Ghost ECC je softver otvorenog koda pod licencom GNU Affero General Public License v3.0. Izvorni kod ove verzije je javno dostupan na linku iznad.";
+"Ghost ECC otključava samo šifra aplikacije, a Face ID ako je uključen; šifra telefona ne. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana." = "Ghost ECC otključava samo šifra aplikacije, a Face ID ako je uključen; šifra telefona ne. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana.";
 "Ghost ID" = "Ghost ID";
 "Ghost ID je napravljen. Ključevi se ne izvoze i nema oporavka preko bekapa." = "Ghost ID je napravljen. Ključevi se ne izvoze i nema oporavka preko bekapa.";
 "Ghost ID mora sadržati GHOST- i 64 heksadecimalna znaka." = "Ghost ID mora sadržati GHOST- i 64 heksadecimalna znaka.";
@@ -41,6 +44,7 @@
 "Identitet bez broja i emaila" = "Identitet bez broja i emaila";
 "Identitet je obrisan sa uređaja. Neki sandučići na serveru nisu obrisani; bez ključeva su neupotrebljivi, a server ih uklanja nakon perioda neaktivnosti." = "Identitet je obrisan sa uređaja. Neki sandučići na serveru nisu obrisani; bez ključeva su neupotrebljivi, a server ih uklanja nakon perioda neaktivnosti.";
 "Imam pozivnicu" = "Imam pozivnicu";
+"Ime ili Ghost ID" = "Ime ili Ghost ID";
 "Ime kontakta" = "Ime kontakta";
 "Ime na ovom uređaju" = "Ime na ovom uređaju";
 "Ime ostaje samo na ovom uređaju. Nakon povezivanja uporedi sigurnosni broj sa sagovornikom prije slanja poruka." = "Ime ostaje samo na ovom uređaju. Nakon povezivanja uporedi sigurnosni broj sa sagovornikom prije slanja poruka.";
@@ -48,6 +52,10 @@
 "Iskorišćena je, otkazana ili je istekla." = "Iskorišćena je, otkazana ili je istekla.";
 "Izvorni kod" = "Izvorni kod";
 "Jedna poruka nije mogla biti provjerena i nije prikazana." = "Jedna poruka nije mogla biti provjerena i nije prikazana.";
+"Jezik" = "Jezik";
+"Jezik aplikacije" = "Jezik aplikacije";
+"Jezik biraš u iOS podešavanjima aplikacije (Language). Bez izbora aplikacija prati jezik telefona." = "Jezik biraš u iOS podešavanjima aplikacije (Language). Bez izbora aplikacija prati jezik telefona.";
+"Jezik biraš u iOS podešavanjima aplikacije, pod Language. Ako te opcije nema, u iOS-u dodaj još jedan jezik u General → Language & Region." = "Jezik biraš u iOS podešavanjima aplikacije, pod Language. Ako te opcije nema, u iOS-u dodaj još jedan jezik u General → Language & Region.";
 "Kodovi se ne podudaraju" = "Kodovi se ne podudaraju";
 "Kontakt je blokiran" = "Kontakt je blokiran";
 "Kontakt je blokiran." = "Kontakt je blokiran.";
@@ -60,6 +68,7 @@
 "Kontakt će biti blokiran. Poruke su šifrovane i niko osim vas dvoje ih ne može pročitati, pa problem opiši na stranici podrške." = "Kontakt će biti blokiran. Poruke su šifrovane i niko osim vas dvoje ih ne može pročitati, pa problem opiši na stranici podrške.";
 "Kontakti samo pozivnicom" = "Kontakti samo pozivnicom";
 "Kontakti se dodaju jednokratnom pozivnicom. Niko ti ne može pisati bez nje." = "Kontakti se dodaju jednokratnom pozivnicom. Niko ti ne može pisati bez nje.";
+"Koristi Face ID" = "Koristi Face ID";
 "Kreiraj Ghost ID" = "Kreiraj Ghost ID";
 "Kreiranje…" = "Kreiranje…";
 "Kriptografska biblioteka nije instalirana. Otvori uputstvo u projektu prije pokretanja." = "Kriptografska biblioteka nije instalirana. Otvori uputstvo u projektu prije pokretanja.";
@@ -74,6 +83,7 @@
 "Na serveru" = "Na serveru";
 "Najduže 24 sata i samo u memoriji telefona. Nema bekapa: ako izgubiš telefon ili obrišeš identitet, ključevi se ne mogu vratiti." = "Najduže 24 sata i samo u memoriji telefona. Nema bekapa: ako izgubiš telefon ili obrišeš identitet, ključevi se ne mogu vratiti.";
 "Najsigurnije je da se vidite uživo i skenirate jedno drugom ovaj kod. Ako se kodovi podudaraju, kontakt se potvrđuje automatski." = "Najsigurnije je da se vidite uživo i skenirate jedno drugom ovaj kod. Ako se kodovi podudaraju, kontakt se potvrđuje automatski.";
+"Nakon %@ pogrešnih pokušaja svi podaci se brišu sa ovog uređaja." = "Nakon %@ pogrešnih pokušaja svi podaci se brišu sa ovog uređaja.";
 "Napiši poruku…" = "Napiši poruku…";
 "Napravi jednokratnu pozivnicu i pokaži QR kod. Niko ti ne može pisati bez pozivnice koju si mu dao." = "Napravi jednokratnu pozivnicu i pokaži QR kod. Niko ti ne može pisati bez pozivnice koju si mu dao.";
 "Napravi pozivnicu" = "Napravi pozivnicu";
@@ -85,6 +95,7 @@
 "Nije poslato" = "Nije poslato";
 "Nije poslato · Pokušaj ponovo" = "Nije poslato · Pokušaj ponovo";
 "Nova pozivnica" = "Nova pozivnica";
+"Nova šifra (6–16 cifara)" = "Nova šifra (6–16 cifara)";
 "O aplikaciji" = "O aplikaciji";
 "Obavještenja" = "Obavještenja";
 "Obavještenja o novim porukama" = "Obavještenja o novim porukama";
@@ -92,9 +103,11 @@
 "Obavještenje uvijek glasi samo „Nova poruka“: bez imena, Ghost ID-a i sadržaja. Da bi ga poslao, server zna koji sandučići pripadaju ovom uređaju; tu vezu drži samo u memoriji, a Apple vidi da je stiglo obavještenje." = "Obavještenje uvijek glasi samo „Nova poruka“: bez imena, Ghost ID-a i sadržaja. Da bi ga poslao, server zna koji sandučići pripadaju ovom uređaju; tu vezu drži samo u memoriji, a Apple vidi da je stiglo obavještenje.";
 "Obrisati lokalne poruke? Kopije kod sagovornika se ne mogu povući." = "Obrisati lokalne poruke? Kopije kod sagovornika se ne mogu povući.";
 "Obriši" = "Obriši";
+"Obriši identitet" = "Obriši identitet";
 "Obriši moj identitet" = "Obriši moj identitet";
 "Obriši poruke sa ovog uređaja" = "Obriši poruke sa ovog uređaja";
 "Obriši razgovore pri izlasku iz aplikacije" = "Obriši razgovore pri izlasku iz aplikacije";
+"Obriši sve nakon 10 pogrešnih šifri" = "Obriši sve nakon 10 pogrešnih šifri";
 "Odbaci snimak" = "Odbaci snimak";
 "Odblokiraj kontakt" = "Odblokiraj kontakt";
 "Omogući kameru u iOS podešavanjima. Na simulatoru kamera nije dostupna." = "Omogući kameru u iOS podešavanjima. Na simulatoru kamera nije dostupna.";
@@ -111,8 +124,10 @@
 "Ovo je tvoja sopstvena pozivnica." = "Ovo je tvoja sopstvena pozivnica.";
 "Podijeli link pozivnice" = "Podijeli link pozivnice";
 "Podrška i prijava problema" = "Podrška i prijava problema";
+"Pogrešna šifra. Neuspjelih pokušaja: %@." = "Pogrešna šifra. Neuspjelih pokušaja: %@.";
 "Pokušaj ponovo" = "Pokušaj ponovo";
 "Politika privatnosti" = "Politika privatnosti";
+"Ponovi novu šifru" = "Ponovi novu šifru";
 "Poruka je istekla." = "Poruka je istekla.";
 "Poruka nije važeća." = "Poruka nije važeća.";
 "Poruke" = "Poruke";
@@ -120,6 +135,7 @@
 "Poruke nestaju" = "Poruke nestaju";
 "Poruke, glas, fotografije i fajlovi" = "Poruke, glas, fotografije i fajlovi";
 "Poslati fajl?" = "Poslati fajl?";
+"Postavi šifru aplikacije" = "Postavi šifru aplikacije";
 "Potrebna je instalacija LibSignalClient biblioteke. Nema slanja bez enkripcije." = "Potrebna je instalacija LibSignalClient biblioteke. Nema slanja bez enkripcije.";
 "Potvrdi podudaranje" = "Potvrdi podudaranje";
 "Povezano" = "Povezano";
@@ -141,6 +157,8 @@
 "Pravljenje…" = "Pravljenje…";
 "Prekinuto" = "Prekinuto";
 "Prekoračena dozvoljena veličina sadržaja." = "Prekoračena dozvoljena veličina sadržaja.";
+"Previše pogrešnih pokušaja. Pokušaj ponovo za %@." = "Previše pogrešnih pokušaja. Pokušaj ponovo za %@.";
+"Previše pogrešnih šifri: identitet, ključevi i kontakti su obrisani sa ovog uređaja." = "Previše pogrešnih šifri: identitet, ključevi i kontakti su obrisani sa ovog uređaja.";
 "Prijavi zloupotrebu" = "Prijavi zloupotrebu";
 "Primljeno" = "Primljeno";
 "Primljeno u lokalnom testu: %@" = "Primljeno u lokalnom testu: %@";
@@ -148,6 +166,7 @@
 "Priprema kamere…" = "Priprema kamere…";
 "Privatni ključ ostaje na uređaju" = "Privatni ključ ostaje na uređaju";
 "Promijeni ime" = "Promijeni ime";
+"Promijeni šifru aplikacije" = "Promijeni šifru aplikacije";
 "Promjena važi za nove poruke. Istek se računa od slanja. Gašenje procesa briše lokalni sadržaj ranije; suspendovana aplikacija provjerava istek pri povratku." = "Promjena važi za nove poruke. Istek se računa od slanja. Gašenje procesa briše lokalni sadržaj ranije; suspendovana aplikacija provjerava istek pri povratku.";
 "Provjeri uživo" = "Provjeri uživo";
 "Prvo uporedi sigurnosni broj sa sagovornikom." = "Prvo uporedi sigurnosni broj sa sagovornikom.";
@@ -165,6 +184,7 @@
 "Sandučić na serveru više ne postoji." = "Sandučić na serveru više ne postoji.";
 "Sačuvaj" = "Sačuvaj";
 "Sačuvaj ili podijeli" = "Sačuvaj ili podijeli";
+"Sačuvaj šifru" = "Sačuvaj šifru";
 "Sačuvani su samo identitet, kriptografsko stanje, kontakti, ključevi sandučića i podešavanja u nesinhronizovanom Keychain-u. Prepiske, fotografije, glasovne poruke i fajlovi se ne upisuju na disk; fajl napušta aplikaciju samo kad ga ti sačuvaš ili podijeliš." = "Sačuvani su samo identitet, kriptografsko stanje, kontakti, ključevi sandučića i podešavanja u nesinhronizovanom Keychain-u. Prepiske, fotografije, glasovne poruke i fajlovi se ne upisuju na disk; fajl napušta aplikaciju samo kad ga ti sačuvaš ili podijeliš.";
 "Server je odbio potpis zahtjeva." = "Server je odbio potpis zahtjeva.";
 "Server je odbio zahtjev (%@)." = "Server je odbio zahtjev (%@).";
@@ -190,15 +210,20 @@
 "Trajanje novih poruka" = "Trajanje novih poruka";
 "Trajno obrisati Ghost ID, ključeve, kontakte i lokalne razgovore? Sandučići na serverima se brišu ako su dostupni. Oporavak nije moguć." = "Trajno obrisati Ghost ID, ključeve, kontakte i lokalne razgovore? Sandučići na serverima se brišu ako su dostupni. Oporavak nije moguć.";
 "Trajno obriši" = "Trajno obriši";
+"Trenutna šifra" = "Trenutna šifra";
+"Trenutna šifra nije tačna." = "Trenutna šifra nije tačna.";
 "Tvoj Ghost ID" = "Tvoj Ghost ID";
 "Tvoj privatni prostor je zaključan." = "Tvoj privatni prostor je zaključan.";
 "U redu" = "U redu";
 "Ukloni" = "Ukloni";
 "Ukloni kontakt" = "Ukloni kontakt";
 "Ukloni potvrdu kontakta" = "Ukloni potvrdu kontakta";
+"Ukloni šifru" = "Ukloni šifru";
+"Ukloni šifru aplikacije" = "Ukloni šifru aplikacije";
 "Ukloniti kontakt i lokalne poruke?" = "Ukloniti kontakt i lokalne poruke?";
 "Unesi HTTPS adresu servera bez putanje, kredencijala ili parametara." = "Unesi HTTPS adresu servera bez putanje, kredencijala ili parametara.";
 "Unesi pozivnicu" = "Unesi pozivnicu";
+"Unesi šifru aplikacije" = "Unesi šifru aplikacije";
 "Uporedi sigurnosni broj" = "Uporedi sigurnosni broj";
 "Uporedi sigurnosni broj prije slanja" = "Uporedi sigurnosni broj prije slanja";
 "Uporedi svih 60 cifara sa sagovornikom uživo ili drugim pouzdanim putem. Pozivnica sama po sebi nije dokaz ko je osoba." = "Uporedi svih 60 cifara sa sagovornikom uživo ili drugim pouzdanim putem. Pozivnica sama po sebi nije dokaz ko je osoba.";
@@ -212,6 +237,9 @@
 "Vrijeme servera i uređaja se razlikuje. Uključi automatsko vrijeme na iPhone-u." = "Vrijeme servera i uređaja se razlikuje. Uključi automatsko vrijeme na iPhone-u.";
 "Vrijeme uređaja odstupa od servera" = "Vrijeme uređaja odstupa od servera";
 "Za koga je pozivnica" = "Za koga je pozivnica";
+"Zaboravljena šifra" = "Zaboravljena šifra";
+"Zaboravljenu šifru nije moguće vratiti ni poslati; jedini izlaz je brisanje identiteta. Šifra se ne čuva, nego samo njen zaštićen otisak na ovom uređaju." = "Zaboravljenu šifru nije moguće vratiti ni poslati; jedini izlaz je brisanje identiteta. Šifra se ne čuva, nego samo njen zaštićen otisak na ovom uređaju.";
+"Zaboravljenu šifru nije moguće vratiti. Jedini izlaz je brisanje identiteta, ključeva i kontakata sa ovog uređaja." = "Zaboravljenu šifru nije moguće vratiti. Jedini izlaz je brisanje identiteta, ključeva i kontakata sa ovog uređaja.";
 "Zaključavanje pri povratku" = "Zaključavanje pri povratku";
 "Zatvori" = "Zatvori";
 "Zaustavi" = "Zaustavi";
@@ -221,11 +249,16 @@
 "Zaštićeno čuvanje nije dostupno. Otključaj uređaj i pokušaj ponovo." = "Zaštićeno čuvanje nije dostupno. Otključaj uređaj i pokušaj ponovo.";
 "Zvuk u otvorenoj aplikaciji" = "Zvuk u otvorenoj aplikaciji";
 "ghost-ecc://invite/…" = "ghost-ecc://invite/…";
+"iOS je zabilježio snimak ekrana. Već napravljen snimak nije moguće povući." = "iOS je zabilježio snimak ekrana. Već napravljen snimak nije moguće povući.";
 "iOS trenutno nije izdao token za obavještenja. Pokušaće ponovo pri sljedećem pokretanju." = "iOS trenutno nije izdao token za obavještenja. Pokušaće ponovo pri sljedećem pokretanju.";
 "Čeka da se sagovornik poveže" = "Čeka da se sagovornik poveže";
 "Čeka potvrdu" = "Čeka potvrdu";
 "Čeka potvrdu veze" = "Čeka potvrdu veze";
 "Čeka se da sagovornik potvrdi vezu" = "Čeka se da sagovornik potvrdi vezu";
+"Šifra" = "Šifra";
+"Šifra aplikacije je sačuvana. Šifra telefona više ne otključava Ghost ECC." = "Šifra aplikacije je sačuvana. Šifra telefona više ne otključava Ghost ECC.";
+"Šifra mora imati od 6 do 16 cifara." = "Šifra mora imati od 6 do 16 cifara.";
+"Šifre se ne podudaraju." = "Šifre se ne podudaraju.";
 "Šifrovano s kraja na kraj" = "Šifrovano s kraja na kraj";
 "Šifrovano s kraja na kraj · potvrđen kontakt" = "Šifrovano s kraja na kraj · potvrđen kontakt";
 "PUSH_NEW_MESSAGE" = "Nova poruka";
