@@ -1,4 +1,5 @@
 # Ghost ECC
+**[Download on the App Store](https://apps.apple.com/app/id6826897860)**
 
 **Private messages without a phone number.** Ghost ECC is an iOS messenger with no accounts, no phone numbers and no address book. Contacts are added only with a one-time invitation, everything is end-to-end encrypted with [libsignal](https://github.com/signalapp/libsignal), and messages disappear within 24 hours without ever being written to disk.
 
