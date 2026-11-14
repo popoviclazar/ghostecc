@@ -61,8 +61,9 @@ actor SignalEngine {
         return try transaction {
             store.prunePreKeys(now: Date())
             guard store.state.preKeys.count < Self.maxUnusedBundles, store.state.issuedAt.count < 256 else { throw GhostError.limit }
-            var id = UInt32.random(in: 1...UInt32.max - 1)
-            while store.state.issuedAt[String(id)] != nil { id = UInt32.random(in: 1...UInt32.max - 1) }
+            // Positive 31-bit IDs: libsignal's Java API (Android) takes key IDs as a signed int.
+            var id = UInt32.random(in: 1...0x7FFF_FFFF)
+            while store.state.issuedAt[String(id)] != nil { id = UInt32.random(in: 1...0x7FFF_FFFF) }
             let identity = try store.identityKeyPair(context: NullContext())
             let pre = PrivateKey.generate(); let signed = PrivateKey.generate(); let kyber = KEMKeyPair.generate()
             let signedSignature = identity.privateKey.generateSignature(message: signed.publicKey.serialize())

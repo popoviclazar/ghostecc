@@ -43,7 +43,7 @@ struct GhostECCApp: App {
                 .onOpenURL { url in store.openLink(url) }
                 .onReceive(NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)) { _ in store.captured = AppStore.screenCaptured }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)) { _ in
-                    store.notice = "iOS je zabilježio snimak ekrana. Već napravljen snimak nije moguće povući."
+                    store.notice = String(localized: "iOS je zabilježio snimak ekrana. Već napravljen snimak nije moguće povući.")
                 }
         }
     }

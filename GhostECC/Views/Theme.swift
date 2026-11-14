@@ -34,12 +34,13 @@ struct GhostShape: Shape {
 }
 struct ContactAvatar: View {
     let contact: Contact
+    var size: CGFloat = 48
     var body: some View {
         ZStack {
             Circle().fill(GhostTheme.secondaryPanel)
             if contact.isDemo { Image(systemName: "testtube.2").foregroundStyle(GhostTheme.blue) }
             else { Text(String(contact.title.prefix(1)).uppercased()).font(.headline).foregroundStyle(.white) }
-        }.frame(width: 48, height: 48).accessibilityHidden(true)
+        }.frame(width: size, height: size).accessibilityHidden(true)
     }
 }
 struct PrimaryButton: View {

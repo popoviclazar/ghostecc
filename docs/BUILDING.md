@@ -12,7 +12,7 @@
   ```
 - `xcode-select -p` must point to Xcode (`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` if it shows CommandLineTools).
 
-Use a folder path without spaces.
+Use a folder path without spaces. Simulator builds are arm64 only, so the simulator needs an Apple silicon Mac; device and App Store builds are unaffected.
 
 ## Build
 

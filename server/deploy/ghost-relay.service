@@ -1,5 +1,5 @@
 [Unit]
-Description=Ghost ECC relay
+Description=Ghost Talk relay
 After=network-online.target
 Wants=network-online.target
 

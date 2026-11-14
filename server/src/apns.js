@@ -20,7 +20,7 @@ export class ApnsClient {
     this.key = createPrivateKey(keyPem);
     if (this.key.asymmetricKeyType !== 'ec') throw new Error('APNs key must be the .p8 EC key from Apple');
     Object.assign(this, { keyId, teamId, topic, origins, now, timeoutMs });
-    this.payload = JSON.stringify({ aps: { alert: { 'loc-key': locKey }, sound: 'default' } });
+    this.locKey = locKey;
     this.sessions = new Map();
     this.cachedJwt = null;
   }
@@ -46,7 +46,14 @@ export class ApnsClient {
   }
 
   // Resolves { status, reason }. status 0 means a network failure.
-  send(token, environment) {
+  // Always the same generic text; only the icon badge (new messages since the app was last opened) varies.
+  payloadFor(badge = 0) {
+    const aps = { alert: { 'loc-key': this.locKey }, sound: 'default' };
+    if (Number.isInteger(badge) && badge > 0) aps.badge = Math.min(badge, 999);
+    return JSON.stringify({ aps });
+  }
+
+  send(token, environment, badge = 0) {
     return new Promise((resolve) => {
       let done = false;
       const finish = (result) => { if (!done) { done = true; resolve(result); } };
@@ -80,7 +87,7 @@ export class ApnsClient {
       });
       request.on('error', () => finish({ status: 0, reason: 'network' }));
       request.setTimeout(this.timeoutMs, () => { request.close(http2.constants.NGHTTP2_CANCEL); finish({ status: 0, reason: 'timeout' }); });
-      request.end(this.payload);
+      request.end(this.payloadFor(badge));
     });
   }
 
@@ -91,14 +98,15 @@ export class ApnsClient {
 export class Pusher {
   constructor({ store, send, intervalMs = 15_000, now = () => Date.now(), setTimer = setTimeout, log = () => {} }) {
     Object.assign(this, { store, send, intervalMs, now, setTimer, log });
-    this.devices = new Map(); // token -> { last, timer }
+    this.devices = new Map(); // token -> { last, timer, count }: count = new messages since the device last fetched
     this.stats = { sent: 0, dropped: 0, failed: 0 };
   }
 
   messageArrived(recipientId) {
     const target = this.store.pushTarget(recipientId);
     if (!target) return;
-    const state = this.devices.get(target.token) ?? { last: 0, timer: null };
+    const state = this.devices.get(target.token) ?? { last: 0, timer: null, count: 0 };
+    state.count = Math.min((state.count ?? 0) + 1, 999);
     this.devices.set(target.token, state);
     if (state.timer) return;
     const wait = Math.max(0, state.last + this.intervalMs - this.now());
@@ -106,17 +114,24 @@ export class Pusher {
     state.timer?.unref?.();
   }
 
+  // The app fetched its mailboxes, so it was opened: the badge starts again from zero.
+  fetched(recipientId) {
+    const target = this.store.pushTarget(recipientId);
+    const state = target && this.devices.get(target.token);
+    if (state) state.count = 0;
+  }
+
   async deliver(token) {
     const target = [...this.store.pushTargets.values()].find((item) => item.token === token);
     if (!target) { this.devices.delete(token); return; }
-    const state = this.devices.get(token) ?? { last: 0, timer: null };
+    const state = this.devices.get(token) ?? { last: 0, timer: null, count: 0 };
     this.devices.set(token, state);
     state.last = this.now();
-    let result = await this.send(token, target.environment);
+    let result = await this.send(token, target.environment, state.count);
     if (result.status === 400 && result.reason === 'BadDeviceToken') {
       // Development builds get sandbox tokens; a Release build run from Xcode may report the wrong environment.
       const other = target.environment === 'production' ? 'sandbox' : 'production';
-      result = await this.send(token, other);
+      result = await this.send(token, other, state.count);
       if (result.status === 200) this.store.updatePushToken(token, other);
     }
     if (result.status === 200) { this.stats.sent += 1; return; }
@@ -132,6 +147,7 @@ export class Pusher {
 
   sweep() {
     const cutoff = this.now() - 3_600_000;
-    for (const [token, state] of this.devices) if (!state.timer && state.last < cutoff) this.devices.delete(token);
+    // A device with an unopened badge count keeps it; otherwise the count would silently start over.
+    for (const [token, state] of this.devices) if (!state.timer && state.last < cutoff && !state.count) this.devices.delete(token);
   }
 }

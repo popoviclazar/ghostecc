@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.1
+
+- Ghost ECC is now called **Ghost Talk**. Nothing else changes: same app, keys, contacts, server and invitation links.
+- Group chats of up to 20 members. The admin adds verified contacts; each gets an invitation to accept or decline. Every group message is encrypted separately for each member over the pairwise Signal sessions, so the relay never learns that a group exists.
+- Members who don't know each other are connected automatically through the admin with one-time invitations that only the intended member can use. These connections are marked "connected through the group" and need their own safety-number check before one-to-one chats.
+- Forwarding: long-press a message to send a copy to other chats; each copy is encrypted for its recipients and marked "Forwarded".
+- Ghost Lab group: try groups and forwarding on a single device (Privacy → Ghost Lab).
+- Recommend Ghost Talk and rate it on the App Store from the About screen.
+- Reply to a message (with a quote), react with an emoji, and delete your own messages for everyone.
+- Message lifetime per chat, and muting a contact (its mailbox leaves push registration on the relay).
+- The app icon shows the number of new messages since the app was last opened.
+- The app is now English only, whatever the phone language; the language option was removed.
+
 ## 1.0.0
 
 First public release.

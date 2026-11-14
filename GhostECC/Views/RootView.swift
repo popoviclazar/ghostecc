@@ -20,7 +20,7 @@ struct RootView: View {
                 GhostTheme.background.ignoresSafeArea()
                 VStack(spacing: 26) {
                     GhostMark(size: 116)
-                    Text("GHOST ECC").font(.system(.title, design: .rounded).weight(.black)).tracking(3)
+                    Text("GHOST TALK").font(.system(.title, design: .rounded).weight(.black)).tracking(3)
                     if store.captured && store.settings.hideDuringCapture {
                         Text("Zaustavi snimanje ili dijeljenje ekrana.").foregroundStyle(.secondary).multilineTextAlignment(.center)
                     } else if !store.covered {
@@ -34,7 +34,7 @@ struct RootView: View {
                 }.padding()
             }
         }
-        .alert("Ghost ECC", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) {
+        .alert("Ghost Talk", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) {
             Button("U redu") { store.error = nil }
         } message: { Text(store.error ?? "") }
         .alert("Obavještenje", isPresented: Binding(get: { store.notice != nil && store.error == nil && !store.shouldCover }, set: { if !$0 { store.notice = nil } })) {
@@ -53,7 +53,7 @@ struct WelcomeView: View {
                 VStack(spacing: 22) {
                     GhostMark(size: 128)
                     VStack(spacing: 10) {
-                        Text(verbatim: "GHOST ECC").font(.system(size: 34, weight: .black, design: .rounded)).tracking(3)
+                        Text(verbatim: "GHOST TALK").font(.system(size: 34, weight: .black, design: .rounded)).tracking(3)
                         Text("Manje tragova. Više kontrole.").font(.title3).foregroundStyle(.secondary)
                     }
                     VStack(alignment: .leading, spacing: 16) {

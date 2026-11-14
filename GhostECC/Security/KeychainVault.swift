@@ -65,4 +65,17 @@ struct LocalMetadata: Codable {
     var contacts: [Contact] = []
     var invites: [PendingInvite] = []
     var settings = AppSettings()
+    var groups: [GhostGroup] = []
+
+    init(contacts: [Contact] = [], invites: [PendingInvite] = [], settings: AppSettings = AppSettings(), groups: [GhostGroup] = []) {
+        self.contacts = contacts; self.invites = invites; self.settings = settings; self.groups = groups
+    }
+    /// Version 1.0 stored no groups; every field is optional so older metadata keeps loading.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        contacts = try container.decodeIfPresent([Contact].self, forKey: .contacts) ?? []
+        invites = try container.decodeIfPresent([PendingInvite].self, forKey: .invites) ?? []
+        settings = try container.decodeIfPresent(AppSettings.self, forKey: .settings) ?? AppSettings()
+        groups = try container.decodeIfPresent([GhostGroup].self, forKey: .groups) ?? []
+    }
 }

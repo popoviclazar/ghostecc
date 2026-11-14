@@ -88,6 +88,40 @@ test('pusher coalesces bursts per device and respects the interval', async () =>
   assert.equal(timers[1].ms, 14_000);
 });
 
+test('badge counts new messages per device and resets when the app fetches', async () => {
+  let now = 1_000_000;
+  const timers = [];
+  const sent = [];
+  const store = new RelayStore({ origin: ORIGIN, now: () => now });
+  const a = create(store), b = create(store);
+  store.notify(notifyBody(store, [a, b], TOKEN));
+  const pusher = new Pusher({ store, now: () => now, intervalMs: 15_000, setTimer: (fn, ms) => { timers.push({ fn, ms }); return {}; },
+    send: async (token, env, badge) => { sent.push(badge); return { status: 200 }; } });
+  pusher.messageArrived(a.recipientId); pusher.messageArrived(b.recipientId); pusher.messageArrived(a.recipientId);
+  await timers[0].fn();
+  assert.deepEqual(sent, [3], 'one coalesced push carries every message so far');
+  now += 20_000;
+  pusher.messageArrived(b.recipientId);
+  await timers[1].fn();
+  assert.deepEqual(sent, [3, 4], 'the badge keeps growing until the app is opened');
+  pusher.fetched(a.recipientId);
+  now += 20_000;
+  pusher.messageArrived(a.recipientId);
+  await timers[2].fn();
+  assert.deepEqual(sent, [3, 4, 1], 'opening the app starts the count again');
+  now += 7_200_000;
+  pusher.sweep();
+  assert.equal(pusher.devices.get(TOKEN)?.count, 1, 'an unopened count survives cleanup');
+});
+
+test('APNs payload: generic text, badge only when positive', () => {
+  const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+  const client = new ApnsClient({ keyPem: privateKey.export({ format: 'pem', type: 'pkcs8' }), keyId: 'ABC123DEFG', teamId: 'TEAM123456', topic: 'net.ghostecc.app' });
+  assert.deepEqual(JSON.parse(client.payloadFor(0)), { aps: { alert: { 'loc-key': 'PUSH_NEW_MESSAGE' }, sound: 'default' } });
+  assert.deepEqual(JSON.parse(client.payloadFor(5)).aps.badge, 5);
+  assert.equal(JSON.parse(client.payloadFor(5000)).aps.badge, 999);
+});
+
 test('pusher tries the other environment on BadDeviceToken and drops dead tokens', async () => {
   const store = new RelayStore({ origin: ORIGIN });
   const a = create(store), b = create(store);

@@ -20,7 +20,7 @@ enum GhostError: LocalizedError {
     case invalidID, ownID, duplicateContact, blocked, unavailable, unverified, keyChanged
     case invalidPayload, expired, tooLarge, notConfigured, cryptoUnavailable, storage(Int32), limit
     case server(Int), invalidURL, unknownContact, clockSkew
-    case invalidInvite, invitationUsed, queueGone, unauthorized, rateLimited, disconnected
+    case invalidInvite, invitationUsed, queueGone, unauthorized, rateLimited, disconnected, groupNotConnected
     var errorDescription: String? {
         switch self {
         case .invalidID: return String(localized: "Ghost ID mora sadržati GHOST- i 64 heksadecimalna znaka.")
@@ -47,6 +47,7 @@ enum GhostError: LocalizedError {
         case .unauthorized: return String(localized: "Server je odbio potpis zahtjeva.")
         case .rateLimited: return String(localized: "Server je zauzet ili je dostignut limit. Pokušaj malo kasnije.")
         case .disconnected: return String(localized: "Veza sa ovim kontaktom je prekinuta. Povežite se ponovo novom pozivnicom.")
+        case .groupNotConnected: return String(localized: "Članovi grupe još nisu povezani. Slanje će raditi čim se povežu.")
         }
     }
 }
@@ -57,8 +58,10 @@ enum Limits {
     static let maxPhotoBytes = 4_000_000
     static let maxVoiceBytes = 3_000_000
     static let maxFileBytes = 4_000_000
-    static let maxContacts = 50
+    /// Includes contacts created automatically inside groups.
+    static let maxContacts = 200
     static let maxInvites = 20
+    static let maxGroups = 30
     static let maxMessagesPerContact = 500
     /// RAM budget for photos, voice messages and files across all chats.
     static let maxPhotoMemory = 32_000_000
@@ -101,7 +104,15 @@ struct Contact: Identifiable, Codable, Equatable {
     var state: ConnectionState = .connected
     var inbound: InboundQueue?
     var outbound: OutboundQueue?
+    /// Set for connections the app made automatically between members of the listed groups ("introduced").
+    /// They carry group messages only and stay out of the chat list until verified with the safety number.
+    var introducedIn: [String]? = nil
+    /// Message lifetime for this chat; nil follows the global setting.
+    var lifetime: TimeInterval? = nil
+    /// Muted: this contact's mailbox is left out of push registration, so the relay never notifies for it.
+    var muted: Bool? = nil
     var title: String { name.isEmpty ? ghostID.short : name }
+    var isIntroduced: Bool { introducedIn != nil }
 }
 
 struct PendingInvite: Codable, Identifiable, Equatable {
@@ -112,9 +123,74 @@ struct PendingInvite: Codable, Identifiable, Equatable {
     let link: String
     let preKeyID: UInt32
     let createdAt: Date
+    /// Hidden one-time invitation made for exactly one member of a group; any other user is refused.
+    var introduction: IntroductionTag? = nil
     var title: String { name.isEmpty ? "Pozivnica" : name }
     var expiresAt: Date { createdAt.addingTimeInterval(Self.lifetime) }
     func isExpired(now: Date = Date()) -> Bool { now >= expiresAt }
+}
+
+/// A chat a message can go to: a contact or a group.
+struct ChatTarget: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let isGroup: Bool
+}
+
+struct IntroductionTag: Codable, Equatable {
+    let groupID: String
+    let member: GhostID
+}
+
+// MARK: - Groups
+
+/// A group member as the admin lists it. The identity key lets members check the introductions.
+struct GroupMember: Codable, Equatable {
+    let ghostID: GhostID
+    var name: String
+    let identityKey: Data
+}
+
+enum GroupState: String, Codable { case invited, joined }
+
+/// A group exists only on the members' phones. Every group message is encrypted separately for each member
+/// over the pairwise Signal sessions; the relay never learns that a group exists.
+struct GhostGroup: Codable, Identifiable, Equatable {
+    static let maxMembers = 20
+    static let chatPrefix = "group:"
+    let id: String
+    var name: String
+    let admin: GhostID
+    var members: [GroupMember]
+    var state: GroupState
+    let createdAt: Date
+    /// Introduction links received before this device accepted the group, keyed by the inviting member.
+    var pendingIntros: [String: String]? = nil
+    /// The Ghost Lab group: local only, never saved, so groups can be tried on a single device.
+    var isDemo: Bool? = nil
+    /// Message lifetime for this group; nil follows the global setting.
+    var lifetime: TimeInterval? = nil
+    var chatID: String { Self.chatPrefix + id }
+    var title: String { name.isEmpty ? String(localized: "Grupa") : name }
+    func member(_ id: GhostID) -> GroupMember? { members.first { $0.ghostID == id } }
+    static func isValidID(_ id: String) -> Bool { id.range(of: "^[A-Za-z0-9_-]{22}$", options: .regularExpression) != nil }
+    static func newID() -> String { String(SecureRandom.bytes(16).base64URLEncoded.prefix(22)) }
+}
+
+/// Group context of a payload: content carries only the id, control messages carry what they change.
+struct GroupInfo: Codable, Equatable {
+    let id: String
+    var name: String? = nil
+    var admin: GhostID? = nil
+    /// groupUpdate: the complete member list after the change.
+    var members: [GroupMember]? = nil
+    /// groupUpdate: the admin deleted the group.
+    var dissolved: Bool? = nil
+    /// groupIntro: the member the link is for (to the admin) or from (from the admin).
+    var introFor: GhostID? = nil
+    var link: String? = nil
+
+    var isReferenceOnly: Bool { name == nil && admin == nil && members == nil && dissolved == nil && introFor == nil && link == nil }
 }
 
 // MARK: - Messages in RAM
@@ -129,6 +205,8 @@ struct ChatMessage: Identifiable {
     let voice: Data?
     let file: FileAttachment?
     let preview: UIImage?
+    let forwarded: Bool
+    let quote: Quote?
     let sentAt: Date
     let expiresAt: Date
     let receivedUptime: TimeInterval
@@ -137,7 +215,17 @@ struct ChatMessage: Identifiable {
     var status: MessageStatus
     /// Ciphertext kept in RAM only while a send can still be retried.
     var wire: Data?
+    /// Reactions by sender; the empty string never stays (it removes a reaction).
+    var reactions: [GhostID: String] = [:]
     var attachmentBytes: Int { (photo?.count ?? 0) + (voice?.count ?? 0) + (file?.data.count ?? 0) }
+    /// The content again, for forwarding.
+    var content: PrivatePayload.Content? {
+        if let text { return .text(text) }
+        if let photo { return .photo(photo) }
+        if let voice { return .voice(voice) }
+        if let file { return .file(file) }
+        return nil
+    }
     // A wall-clock rollback cannot extend an already loaded message's lifetime.
     func remaining(now: Date = Date(), uptime: TimeInterval = ProcessInfo.processInfo.systemUptime) -> TimeInterval {
         max(0, min(expiresAt.timeIntervalSince(now), remainingAtReceipt - max(0, uptime - receivedUptime)))
@@ -146,7 +234,23 @@ struct ChatMessage: Identifiable {
 
 // MARK: - Encrypted payload
 
-enum PayloadKind: String, Codable { case text, photo, hello, ready, voice, file }
+enum PayloadKind: String, Codable { case text, photo, hello, ready, voice, file, groupUpdate, groupLeave, groupIntro, reaction, retract }
+
+/// The message a reply refers to. The preview travels with the reply, so it still reads well after the original expired.
+struct Quote: Codable, Equatable {
+    static let maxPreviewCharacters = 120
+    let id: UUID
+    let sender: GhostID
+    let preview: String
+    var isWellFormed: Bool { preview.count <= Self.maxPreviewCharacters && preview.utf8.count <= 600 }
+    /// Short text for a quote: the start of the text, or what kind of attachment it was.
+    static func previewText(for message: ChatMessage) -> String {
+        if let text = message.text { return String(text.prefix(maxPreviewCharacters)) }
+        if message.voice != nil { return String(localized: "Glasovna poruka") }
+        if let file = message.file { return String(String(localized: "Fajl: \(file.name)").prefix(maxPreviewCharacters)) }
+        return String(localized: "Fotografija")
+    }
+}
 
 /// A file sent as encrypted message content. The name is shown to the recipient and used when they
 /// save or share it; the type is a UTType identifier.
@@ -186,10 +290,19 @@ struct PrivatePayload: Codable, Equatable {
     let voice: Data?
     let file: FileAttachment?
     let reply: ReplyAddress?
+    let group: GroupInfo?
+    let forwarded: Bool?
+    /// Content kinds: the message this one answers.
+    let quote: Quote?
+    /// reaction / retract: the message they refer to.
+    let target: UUID?
+    /// reaction: one emoji, or empty to remove the sender's reaction.
+    let emoji: String?
 
     enum Content: Equatable { case text(String), photo(Data), voice(Data), file(FileAttachment) }
 
-    init(sender: GhostID, recipient: GhostID, content: Content, lifetime: TimeInterval = 86_400, now: Date = Date()) throws {
+    init(sender: GhostID, recipient: GhostID, content: Content, lifetime: TimeInterval = 86_400, now: Date = Date(),
+         id: UUID = UUID(), group: String? = nil, forwarded: Bool = false, quote: Quote? = nil) throws {
         guard lifetime > 0 && lifetime <= Self.maxLifetime else { throw GhostError.invalidPayload }
         var text: String?, photo: Data?, voice: Data?, file: FileAttachment?
         switch content {
@@ -199,10 +312,15 @@ struct PrivatePayload: Codable, Equatable {
         case .file(let value): file = value; kind = .file
         }
         try Self.checkContent(text: text, photo: photo, voice: voice, file: file)
-        version = 2; id = UUID()
+        if let group { guard GhostGroup.isValidID(group) else { throw GhostError.invalidPayload } }
+        version = 2; self.id = id
         self.sender = sender; self.recipient = recipient
         sentAt = now; expiresAt = now.addingTimeInterval(lifetime)
         self.text = text; self.photo = photo; self.voice = voice; self.file = file; reply = nil
+        self.group = group.map { GroupInfo(id: $0) }
+        self.forwarded = forwarded ? true : nil
+        if let quote { guard quote.isWellFormed else { throw GhostError.invalidPayload } }
+        self.quote = quote; target = nil; emoji = nil
     }
     init(sender: GhostID, recipient: GhostID, text: String? = nil, photo: Data? = nil, lifetime: TimeInterval = 86_400, now: Date = Date()) throws {
         if let text, photo == nil { try self.init(sender: sender, recipient: recipient, content: .text(text), lifetime: lifetime, now: now) }
@@ -215,14 +333,36 @@ struct PrivatePayload: Codable, Equatable {
         case .photo: return photo.map(Content.photo)
         case .voice: return voice.map(Content.voice)
         case .file: return file.map(Content.file)
-        case .hello, .ready: return nil
+        case .hello, .ready, .groupUpdate, .groupLeave, .groupIntro, .reaction, .retract: return nil
         }
     }
-    private init(control: PayloadKind, sender: GhostID, recipient: GhostID, reply: ReplyAddress?, now: Date) {
+    private init(control: PayloadKind, sender: GhostID, recipient: GhostID, reply: ReplyAddress?, group: GroupInfo? = nil, now: Date) {
         version = 2; kind = control; id = UUID()
         self.sender = sender; self.recipient = recipient
         sentAt = now; expiresAt = now.addingTimeInterval(Self.maxLifetime)
         text = nil; photo = nil; voice = nil; file = nil; self.reply = reply
+        self.group = group; forwarded = nil; quote = nil; target = nil; emoji = nil
+    }
+    private init(signal kind: PayloadKind, sender: GhostID, recipient: GhostID, target: UUID, emoji: String?, group: String?, now: Date) {
+        version = 2; self.kind = kind; id = UUID()
+        self.sender = sender; self.recipient = recipient
+        sentAt = now; expiresAt = now.addingTimeInterval(Self.maxLifetime)
+        text = nil; photo = nil; voice = nil; file = nil; reply = nil
+        self.group = group.map { GroupInfo(id: $0) }; forwarded = nil; quote = nil
+        self.target = target; self.emoji = emoji
+    }
+    /// A reaction to message `target`; an empty emoji removes the sender's reaction.
+    static func reaction(sender: GhostID, recipient: GhostID, target: UUID, emoji: String, group: String? = nil, now: Date = Date()) -> PrivatePayload {
+        PrivatePayload(signal: .reaction, sender: sender, recipient: recipient, target: target, emoji: emoji, group: group, now: now)
+    }
+    /// The sender takes back one of their own messages.
+    static func retraction(sender: GhostID, recipient: GhostID, target: UUID, group: String? = nil, now: Date = Date()) -> PrivatePayload {
+        PrivatePayload(signal: .retract, sender: sender, recipient: recipient, target: target, emoji: nil, group: group, now: now)
+    }
+    static func isValidEmoji(_ value: String) -> Bool { value.count <= 1 && value.utf8.count <= 32 }
+    /// Group control messages: membership (admin to members), leaving (member to admin), introductions (via the admin).
+    static func groupControl(_ kind: PayloadKind, sender: GhostID, recipient: GhostID, info: GroupInfo, now: Date = Date()) -> PrivatePayload {
+        PrivatePayload(control: kind, sender: sender, recipient: recipient, reply: nil, group: info, now: now)
     }
     /// First message on a one-time invitation: tells the inviter where to answer.
     static func hello(sender: GhostID, recipient: GhostID, reply: ReplyAddress, now: Date = Date()) -> PrivatePayload {
@@ -250,23 +390,47 @@ struct PrivatePayload: Codable, Equatable {
               sentAt.timeIntervalSince(now) <= 120 else { throw GhostError.invalidPayload }
         // Exactly one kind of content per message, matching the declared kind.
         let present = [text != nil, photo != nil, voice != nil, file != nil].filter { $0 }.count
+        if let group { guard GhostGroup.isValidID(group.id) else { throw GhostError.invalidPayload } }
+        let noSignal = target == nil && emoji == nil
+        let plainContent = reply == nil && (group?.isReferenceOnly ?? true) && noSignal && (quote?.isWellFormed ?? true)
+        let control = present == 0 && reply == nil && forwarded == nil && quote == nil && noSignal
+        let signal = present == 0 && reply == nil && forwarded == nil && quote == nil && target != nil && (group?.isReferenceOnly ?? true)
         switch kind {
-        case .text: guard text != nil, present == 1, reply == nil else { throw GhostError.invalidPayload }
-        case .photo: guard photo != nil, present == 1, reply == nil else { throw GhostError.invalidPayload }
-        case .voice: guard voice != nil, present == 1, reply == nil else { throw GhostError.invalidPayload }
-        case .file: guard file != nil, present == 1, reply == nil else { throw GhostError.invalidPayload }
+        case .text: guard text != nil, present == 1, plainContent else { throw GhostError.invalidPayload }
+        case .photo: guard photo != nil, present == 1, plainContent else { throw GhostError.invalidPayload }
+        case .voice: guard voice != nil, present == 1, plainContent else { throw GhostError.invalidPayload }
+        case .file: guard file != nil, present == 1, plainContent else { throw GhostError.invalidPayload }
+        case .reaction:
+            guard signal, let emoji, Self.isValidEmoji(emoji) else { throw GhostError.invalidPayload }
+        case .retract:
+            guard signal, emoji == nil else { throw GhostError.invalidPayload }
         case .hello:
-            guard present == 0, let reply, RelayQueueID.isValid(reply.senderID),
+            guard present == 0, group == nil, forwarded == nil, quote == nil, noSignal, let reply, RelayQueueID.isValid(reply.senderID),
                   (try? RelayOrigin.normalize(reply.server)) == reply.server else { throw GhostError.invalidPayload }
         case .ready:
-            guard present == 0, reply == nil else { throw GhostError.invalidPayload }
+            guard control, group == nil else { throw GhostError.invalidPayload }
+        case .groupUpdate:
+            guard control, let group, group.introFor == nil, group.link == nil, group.admin == sender else { throw GhostError.invalidPayload }
+            if group.dissolved != true {
+                guard let name = group.name, name.count <= 80, let members = group.members,
+                      (2...GhostGroup.maxMembers).contains(members.count),
+                      Set(members.map(\.ghostID)).count == members.count,
+                      members.contains(where: { $0.ghostID == sender }),
+                      members.allSatisfy({ $0.name.count <= 80 && $0.identityKey.count == 33 && GhostID(identityKey: $0.identityKey) == $0.ghostID })
+                else { throw GhostError.invalidPayload }
+            }
+        case .groupLeave:
+            guard control, let group, group.isReferenceOnly else { throw GhostError.invalidPayload }
+        case .groupIntro:
+            guard control, let group, group.introFor != nil, let link = group.link, (try? InviteLink.parse(link)) != nil,
+                  group.name == nil, group.admin == nil, group.members == nil, group.dissolved == nil else { throw GhostError.invalidPayload }
         }
         guard expiresAt > now else { throw GhostError.expired }
         try Self.checkContent(text: text, photo: photo, voice: voice, file: file)
     }
     func display(outgoing: Bool, status: MessageStatus, now: Date = Date()) -> ChatMessage {
         ChatMessage(id: id, sender: sender, recipient: recipient, text: text, photo: photo, voice: voice, file: file,
-                    preview: photo.flatMap { PhotoTools.thumbnail($0, maxPixel: 720) },
+                    preview: photo.flatMap { PhotoTools.thumbnail($0, maxPixel: 720) }, forwarded: forwarded == true, quote: quote,
                     sentAt: sentAt, expiresAt: expiresAt, receivedUptime: ProcessInfo.processInfo.systemUptime,
                     remainingAtReceipt: max(0, expiresAt.timeIntervalSince(now)), outgoing: outgoing, status: status, wire: nil)
     }

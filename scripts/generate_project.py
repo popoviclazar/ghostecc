@@ -71,8 +71,8 @@ info_ref=ref('Info.plist','text.plist.xml')
 # Entitlements (push) are referenced by CODE_SIGN_ENTITLEMENTS, not copied into the bundle.
 entitlements_ref=ref('GhostECC.entitlements','text.plist.entitlements')
 app_children += [asset_ref,privacy_ref,info_ref,entitlements_ref]
-# Localization: English plus identity tables for the Serbian-family languages (see scripts/l10n.py).
-LANGS=['en','sr-Latn','sr','hr','bs']
+# Localization: the app is English only (UI keys stay Serbian in code; see scripts/l10n.py).
+LANGS=['en']
 def variant(name, langs):
     kids=[put(f'isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "{l}"; path = "Localization/{l}.lproj/{name}"; sourceTree = "<group>";') for l in langs]
     return put(f'isa = PBXVariantGroup; children = ({", ".join(kids)}); name = "{name}"; sourceTree = "<group>";')
@@ -88,11 +88,11 @@ test_product=put('isa = PBXFileReference; explicitFileType = wrapper.cfbundle; i
 products=group('Products',[app_product,test_product],False)
 main=put(f'isa = PBXGroup; children = ({app_group}, {tests_group}, {products}); sourceTree = "<group>";')
 # CocoaPods' embed script copies LibSignalClient.framework into the app; Xcode's user-script sandbox blocks that.
-base='IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES; SWIFT_ENABLE_EXPLICIT_MODULES = NO; ENABLE_USER_SCRIPT_SANDBOXING = NO;'
-project_config=config_list(base)
-app_settings='CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC"; INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC."; INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice."; INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji."; INFOPLIST_FILE = GhostECC/Info.plist; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UIUserInterfaceStyle = Dark; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES; PRODUCT_BUNDLE_IDENTIFIER = net.ghostecc.app; CODE_SIGN_ENTITLEMENTS = GhostECC/GhostECC.entitlements; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; MARKETING_VERSION = 1.0.0; CURRENT_PROJECT_VERSION = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; SWIFT_ENABLE_EXPLICIT_MODULES = NO;'
+base='IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; CLANG_ENABLE_MODULES = YES; SWIFT_ENABLE_EXPLICIT_MODULES = NO; ENABLE_USER_SCRIPT_SANDBOXING = NO; "EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;'
+project_config=config_list(base, ' ONLY_ACTIVE_ARCH = YES;')
+app_settings='CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = "Ghost Talk"; INFOPLIST_KEY_NSFaceIDUsageDescription = "Unlock Ghost Talk."; INFOPLIST_KEY_NSCameraUsageDescription = "Scan the QR code of a Ghost invitation."; INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record a voice message. The audio stays in memory only."; INFOPLIST_FILE = GhostECC/Info.plist; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UIUserInterfaceStyle = Dark; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES; PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app; CODE_SIGN_ENTITLEMENTS = GhostECC/GhostECC.entitlements; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; MARKETING_VERSION = 1.1.1; CURRENT_PROJECT_VERSION = 1; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; SWIFT_ENABLE_EXPLICIT_MODULES = NO;'
 app_configs=config_list(app_settings, ' ENABLE_TESTABILITY = YES;')
-test_configs=config_list('CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = net.ghostecc.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; BUNDLE_LOADER = "$(TEST_HOST)"; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GhostECC.app/GhostECC";')
+test_configs=config_list('CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app.tests; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; BUNDLE_LOADER = "$(TEST_HOST)"; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GhostECC.app/GhostECC";')
 app_phase=phase('PBXSourcesBuildPhase',app_sources)
 app_resources=phase('PBXResourcesBuildPhase',[build(asset_ref),build(privacy_ref),build(localizable_ref),build(infoplist_strings_ref)])
 app_frameworks=phase('PBXFrameworksBuildPhase',[])
@@ -102,7 +102,7 @@ proxy=put(f'isa = PBXContainerItemProxy; containerPortal = {project}; proxyType 
 dep=put(f'isa = PBXTargetDependency; target = {app_target}; targetProxy = {proxy};')
 update(app_target,f'isa = PBXNativeTarget; buildConfigurationList = {app_configs}; buildPhases = ({app_phase}, {app_frameworks}, {app_resources}); buildRules = (); dependencies = (); name = GhostECC; productName = GhostECC; productReference = {app_product}; productType = "com.apple.product-type.application";')
 update(test_target,f'isa = PBXNativeTarget; buildConfigurationList = {test_configs}; buildPhases = ({test_phase}, {test_frameworks}, {test_resources}); buildRules = (); dependencies = ({dep}); name = GhostECCTests; productName = GhostECCTests; productReference = {test_product}; productType = "com.apple.product-type.bundle.unit-test";')
-update(project,f'isa = PBXProject; attributes = {{ LastUpgradeCheck = 1600; TargetAttributes = {{ {test_target} = {{ TestTargetID = {app_target}; }}; }}; }}; buildConfigurationList = {project_config}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, Base, "sr-Latn", sr, hr, bs); mainGroup = {main}; productRefGroup = {products}; projectDirPath = ""; projectRoot = ""; targets = ({app_target}, {test_target});')
+update(project,f'isa = PBXProject; attributes = {{ LastUpgradeCheck = 1600; TargetAttributes = {{ {test_target} = {{ TestTargetID = {app_target}; }}; }}; }}; buildConfigurationList = {project_config}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, Base); mainGroup = {main}; productRefGroup = {products}; projectDirPath = ""; projectRoot = ""; targets = ({app_target}, {test_target});')
 text='// !$*UTF8*$!\n{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {\n'+'\n'.join(key+' = { '+body+' };' for key,body in objects.items())+'\n}; rootObject = '+project+'; }\n'
 text=text.replace('\\"','"')
 (ROOT/'GhostECC.xcodeproj/project.pbxproj').write_text(text)

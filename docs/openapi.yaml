@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Ghost ECC relay
+  title: Ghost Talk relay
   version: 0.4.0
   description: >
     Anonymous one-way queues. No accounts and no Ghost IDs. Every queue operation is signed with

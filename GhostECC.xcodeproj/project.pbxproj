@@ -16,35 +16,38 @@
 		00000000000000000000000E /* Networking/APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* Networking/APIModels.swift */; };
 		000000000000000000000010 /* Networking/LocalPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* Networking/LocalPeer.swift */; };
 		000000000000000000000012 /* Networking/RelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* Networking/RelayClient.swift */; };
-		000000000000000000000014 /* Security/KeychainVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Security/KeychainVault.swift */; };
-		000000000000000000000016 /* Security/SignalEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Security/SignalEngine.swift */; };
-		000000000000000000000018 /* Security/SignalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Security/SignalStore.swift */; };
-		00000000000000000000001A /* Views/AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* Views/AboutView.swift */; };
-		00000000000000000000001C /* Views/ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001B /* Views/ChatView.swift */; };
-		00000000000000000000001E /* Views/ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001D /* Views/ContactDetailView.swift */; };
-		000000000000000000000020 /* Views/IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001F /* Views/IdentityView.swift */; };
-		000000000000000000000022 /* Views/InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000021 /* Views/InboxView.swift */; };
-		000000000000000000000024 /* Views/PrivacyShield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000023 /* Views/PrivacyShield.swift */; };
-		000000000000000000000026 /* Views/PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000025 /* Views/PrivacyView.swift */; };
-		000000000000000000000028 /* Views/QRScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000027 /* Views/QRScanView.swift */; };
-		00000000000000000000002A /* Views/RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000029 /* Views/RootView.swift */; };
-		00000000000000000000002C /* Views/Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002B /* Views/Theme.swift */; };
-		00000000000000000000003B /* PrivacyRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003A /* PrivacyRulesTests.swift */; };
-		00000000000000000000003D /* SignalIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003C /* SignalIntegrationTests.swift */; };
-		00000000000000000000004D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002D /* Assets.xcassets */; };
-		00000000000000000000004E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002E /* PrivacyInfo.xcprivacy */; };
-		00000000000000000000004F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000036 /* Localizable.strings */; };
-		000000000000000000000050 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000038 /* InfoPlist.strings */; };
-		80C33EB7996921C149885295 /* Pods_GhostECC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */; };
-		ADA30DA1DA6CE3EB2A5A71D8 /* Pods_GhostECCTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */; };
+		000000000000000000000014 /* Security/AppPIN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Security/AppPIN.swift */; };
+		000000000000000000000016 /* Security/KeychainVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Security/KeychainVault.swift */; };
+		000000000000000000000018 /* Security/SignalEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Security/SignalEngine.swift */; };
+		00000000000000000000001A /* Security/SignalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* Security/SignalStore.swift */; };
+		00000000000000000000001C /* Views/AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001B /* Views/AboutView.swift */; };
+		00000000000000000000001E /* Views/ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001D /* Views/ChatView.swift */; };
+		000000000000000000000020 /* Views/ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001F /* Views/ContactDetailView.swift */; };
+		000000000000000000000022 /* Views/GroupViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000021 /* Views/GroupViews.swift */; };
+		000000000000000000000024 /* Views/IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000023 /* Views/IdentityView.swift */; };
+		000000000000000000000026 /* Views/InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000025 /* Views/InboxView.swift */; };
+		000000000000000000000028 /* Views/PinViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000027 /* Views/PinViews.swift */; };
+		00000000000000000000002A /* Views/PrivacyShield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000029 /* Views/PrivacyShield.swift */; };
+		00000000000000000000002C /* Views/PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002B /* Views/PrivacyView.swift */; };
+		00000000000000000000002E /* Views/QRScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002D /* Views/QRScanView.swift */; };
+		000000000000000000000030 /* Views/RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002F /* Views/RootView.swift */; };
+		000000000000000000000032 /* Views/Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000031 /* Views/Theme.swift */; };
+		00000000000000000000003D /* PrivacyRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003C /* PrivacyRulesTests.swift */; };
+		00000000000000000000003F /* SignalIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003E /* SignalIntegrationTests.swift */; };
+		00000000000000000000004F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000033 /* Assets.xcassets */; };
+		000000000000000000000050 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000034 /* PrivacyInfo.xcprivacy */; };
+		000000000000000000000051 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000038 /* Localizable.strings */; };
+		000000000000000000000052 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003A /* InfoPlist.strings */; };
+		65BB3A06AF5ED930C41DD20A /* Pods_GhostECCTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 274A2AC518594353E294F4B0 /* Pods_GhostECCTests.framework */; };
+		EDE756572326AB6F7B25B419 /* Pods_GhostECC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB8F11EF3910B495E3E2F99E /* Pods_GhostECC.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		000000000000000000000059 /* PBXContainerItemProxy */ = {
+		00000000000000000000005B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 000000000000000000000058 /* Project object */;
+			containerPortal = 00000000000000000000005A /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 000000000000000000000056;
+			remoteGlobalIDString = 000000000000000000000058;
 			remoteInfo = GhostECC;
 		};
 /* End PBXContainerItemProxy section */
@@ -59,62 +62,61 @@
 		00000000000000000000000D /* Networking/APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/APIModels.swift; sourceTree = "<group>"; };
 		00000000000000000000000F /* Networking/LocalPeer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/LocalPeer.swift; sourceTree = "<group>"; };
 		000000000000000000000011 /* Networking/RelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking/RelayClient.swift; sourceTree = "<group>"; };
-		000000000000000000000013 /* Security/KeychainVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/KeychainVault.swift; sourceTree = "<group>"; };
-		000000000000000000000015 /* Security/SignalEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalEngine.swift; sourceTree = "<group>"; };
-		000000000000000000000017 /* Security/SignalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalStore.swift; sourceTree = "<group>"; };
-		000000000000000000000019 /* Views/AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AboutView.swift; sourceTree = "<group>"; };
-		00000000000000000000001B /* Views/ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ChatView.swift; sourceTree = "<group>"; };
-		00000000000000000000001D /* Views/ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContactDetailView.swift; sourceTree = "<group>"; };
-		00000000000000000000001F /* Views/IdentityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/IdentityView.swift; sourceTree = "<group>"; };
-		000000000000000000000021 /* Views/InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/InboxView.swift; sourceTree = "<group>"; };
-		000000000000000000000023 /* Views/PrivacyShield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyShield.swift; sourceTree = "<group>"; };
-		000000000000000000000025 /* Views/PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyView.swift; sourceTree = "<group>"; };
-		000000000000000000000027 /* Views/QRScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/QRScanView.swift; sourceTree = "<group>"; };
-		000000000000000000000029 /* Views/RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootView.swift; sourceTree = "<group>"; };
-		00000000000000000000002B /* Views/Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Theme.swift; sourceTree = "<group>"; };
-		00000000000000000000002D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		00000000000000000000002E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		00000000000000000000002F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		000000000000000000000030 /* GhostECC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GhostECC.entitlements; sourceTree = "<group>"; };
-		000000000000000000000031 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localization/en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		000000000000000000000032 /* sr-Latn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sr-Latn"; path = "Localization/sr-Latn.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		000000000000000000000033 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = Localization/sr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		000000000000000000000034 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = Localization/hr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		000000000000000000000035 /* bs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bs; path = Localization/bs.lproj/Localizable.strings; sourceTree = "<group>"; };
-		000000000000000000000037 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localization/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		00000000000000000000003A /* PrivacyRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyRulesTests.swift; sourceTree = "<group>"; };
-		00000000000000000000003C /* SignalIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalIntegrationTests.swift; sourceTree = "<group>"; };
-		00000000000000000000003F /* GhostECC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GhostECC.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		000000000000000000000040 /* GhostECCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GhostECCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.debug.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.debug.xcconfig"; sourceTree = "<group>"; };
-		5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.release.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.release.xcconfig"; sourceTree = "<group>"; };
-		A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECCTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.release.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.release.xcconfig"; sourceTree = "<group>"; };
-		EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.debug.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.debug.xcconfig"; sourceTree = "<group>"; };
+		000000000000000000000013 /* Security/AppPIN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/AppPIN.swift; sourceTree = "<group>"; };
+		000000000000000000000015 /* Security/KeychainVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/KeychainVault.swift; sourceTree = "<group>"; };
+		000000000000000000000017 /* Security/SignalEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalEngine.swift; sourceTree = "<group>"; };
+		000000000000000000000019 /* Security/SignalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Security/SignalStore.swift; sourceTree = "<group>"; };
+		00000000000000000000001B /* Views/AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AboutView.swift; sourceTree = "<group>"; };
+		00000000000000000000001D /* Views/ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ChatView.swift; sourceTree = "<group>"; };
+		00000000000000000000001F /* Views/ContactDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContactDetailView.swift; sourceTree = "<group>"; };
+		000000000000000000000021 /* Views/GroupViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/GroupViews.swift; sourceTree = "<group>"; };
+		000000000000000000000023 /* Views/IdentityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/IdentityView.swift; sourceTree = "<group>"; };
+		000000000000000000000025 /* Views/InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/InboxView.swift; sourceTree = "<group>"; };
+		000000000000000000000027 /* Views/PinViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PinViews.swift; sourceTree = "<group>"; };
+		000000000000000000000029 /* Views/PrivacyShield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyShield.swift; sourceTree = "<group>"; };
+		00000000000000000000002B /* Views/PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PrivacyView.swift; sourceTree = "<group>"; };
+		00000000000000000000002D /* Views/QRScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/QRScanView.swift; sourceTree = "<group>"; };
+		00000000000000000000002F /* Views/RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/RootView.swift; sourceTree = "<group>"; };
+		000000000000000000000031 /* Views/Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/Theme.swift; sourceTree = "<group>"; };
+		000000000000000000000033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		000000000000000000000034 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		000000000000000000000035 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		000000000000000000000036 /* GhostECC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GhostECC.entitlements; sourceTree = "<group>"; };
+		000000000000000000000037 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localization/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		000000000000000000000039 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localization/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		00000000000000000000003C /* PrivacyRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyRulesTests.swift; sourceTree = "<group>"; };
+		00000000000000000000003E /* SignalIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalIntegrationTests.swift; sourceTree = "<group>"; };
+		000000000000000000000041 /* GhostECC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GhostECC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000042 /* GhostECCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GhostECCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		22A8B77801D67BF4F19DE67F /* Pods-GhostECCTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.release.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.release.xcconfig"; sourceTree = "<group>"; };
+		274A2AC518594353E294F4B0 /* Pods_GhostECCTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECCTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		54F1DBB8A2E84073C5150220 /* Pods-GhostECC.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.debug.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.debug.xcconfig"; sourceTree = "<group>"; };
+		BB8F11EF3910B495E3E2F99E /* Pods_GhostECC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GhostECC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D243A900706A86FA48CB31DE /* Pods-GhostECC.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECC.release.xcconfig"; path = "Target Support Files/Pods-GhostECC/Pods-GhostECC.release.xcconfig"; sourceTree = "<group>"; };
+		E6632E3C4A9EAAABF1D77E18 /* Pods-GhostECCTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GhostECCTests.debug.xcconfig"; path = "Target Support Files/Pods-GhostECCTests/Pods-GhostECCTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		000000000000000000000052 /* Frameworks */ = {
+		000000000000000000000054 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80C33EB7996921C149885295 /* Pods_GhostECC.framework in Frameworks */,
+				EDE756572326AB6F7B25B419 /* Pods_GhostECC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		000000000000000000000055 /* Frameworks */ = {
+		000000000000000000000057 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADA30DA1DA6CE3EB2A5A71D8 /* Pods_GhostECCTests.framework in Frameworks */,
+				65BB3A06AF5ED930C41DD20A /* Pods_GhostECCTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		000000000000000000000039 /* GhostECC */ = {
+		00000000000000000000003B /* GhostECC */ = {
 			isa = PBXGroup;
 			children = (
 				000000000000000000000001 /* Core/AppConfig.swift */,
@@ -126,74 +128,77 @@
 				00000000000000000000000D /* Networking/APIModels.swift */,
 				00000000000000000000000F /* Networking/LocalPeer.swift */,
 				000000000000000000000011 /* Networking/RelayClient.swift */,
-				000000000000000000000013 /* Security/KeychainVault.swift */,
-				000000000000000000000015 /* Security/SignalEngine.swift */,
-				000000000000000000000017 /* Security/SignalStore.swift */,
-				000000000000000000000019 /* Views/AboutView.swift */,
-				00000000000000000000001B /* Views/ChatView.swift */,
-				00000000000000000000001D /* Views/ContactDetailView.swift */,
-				00000000000000000000001F /* Views/IdentityView.swift */,
-				000000000000000000000021 /* Views/InboxView.swift */,
-				000000000000000000000023 /* Views/PrivacyShield.swift */,
-				000000000000000000000025 /* Views/PrivacyView.swift */,
-				000000000000000000000027 /* Views/QRScanView.swift */,
-				000000000000000000000029 /* Views/RootView.swift */,
-				00000000000000000000002B /* Views/Theme.swift */,
-				00000000000000000000002D /* Assets.xcassets */,
-				00000000000000000000002E /* PrivacyInfo.xcprivacy */,
-				00000000000000000000002F /* Info.plist */,
-				000000000000000000000030 /* GhostECC.entitlements */,
-				000000000000000000000036 /* Localizable.strings */,
-				000000000000000000000038 /* InfoPlist.strings */,
+				000000000000000000000013 /* Security/AppPIN.swift */,
+				000000000000000000000015 /* Security/KeychainVault.swift */,
+				000000000000000000000017 /* Security/SignalEngine.swift */,
+				000000000000000000000019 /* Security/SignalStore.swift */,
+				00000000000000000000001B /* Views/AboutView.swift */,
+				00000000000000000000001D /* Views/ChatView.swift */,
+				00000000000000000000001F /* Views/ContactDetailView.swift */,
+				000000000000000000000021 /* Views/GroupViews.swift */,
+				000000000000000000000023 /* Views/IdentityView.swift */,
+				000000000000000000000025 /* Views/InboxView.swift */,
+				000000000000000000000027 /* Views/PinViews.swift */,
+				000000000000000000000029 /* Views/PrivacyShield.swift */,
+				00000000000000000000002B /* Views/PrivacyView.swift */,
+				00000000000000000000002D /* Views/QRScanView.swift */,
+				00000000000000000000002F /* Views/RootView.swift */,
+				000000000000000000000031 /* Views/Theme.swift */,
+				000000000000000000000033 /* Assets.xcassets */,
+				000000000000000000000034 /* PrivacyInfo.xcprivacy */,
+				000000000000000000000035 /* Info.plist */,
+				000000000000000000000036 /* GhostECC.entitlements */,
+				000000000000000000000038 /* Localizable.strings */,
+				00000000000000000000003A /* InfoPlist.strings */,
 			);
 			path = GhostECC;
 			sourceTree = "<group>";
 		};
-		00000000000000000000003E /* Tests */ = {
+		000000000000000000000040 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				00000000000000000000003A /* PrivacyRulesTests.swift */,
-				00000000000000000000003C /* SignalIntegrationTests.swift */,
+				00000000000000000000003C /* PrivacyRulesTests.swift */,
+				00000000000000000000003E /* SignalIntegrationTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
 		};
-		000000000000000000000041 /* Products */ = {
+		000000000000000000000043 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				00000000000000000000003F /* GhostECC.app */,
-				000000000000000000000040 /* GhostECCTests.xctest */,
+				000000000000000000000041 /* GhostECC.app */,
+				000000000000000000000042 /* GhostECCTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		000000000000000000000042 = {
+		000000000000000000000044 = {
 			isa = PBXGroup;
 			children = (
-				000000000000000000000039 /* GhostECC */,
-				00000000000000000000003E /* Tests */,
-				000000000000000000000041 /* Products */,
-				BDF55D508824CA75A4D106E2 /* Pods */,
-				DF16D827C4A58C7DD918EB37 /* Frameworks */,
+				00000000000000000000003B /* GhostECC */,
+				000000000000000000000040 /* Tests */,
+				000000000000000000000043 /* Products */,
+				0EA050CCE6682268A3319C1F /* Pods */,
+				990FE20E1C4D7324484A73D8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		BDF55D508824CA75A4D106E2 /* Pods */ = {
+		0EA050CCE6682268A3319C1F /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */,
-				BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */,
-				EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */,
-				5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */,
+				54F1DBB8A2E84073C5150220 /* Pods-GhostECC.debug.xcconfig */,
+				D243A900706A86FA48CB31DE /* Pods-GhostECC.release.xcconfig */,
+				E6632E3C4A9EAAABF1D77E18 /* Pods-GhostECCTests.debug.xcconfig */,
+				22A8B77801D67BF4F19DE67F /* Pods-GhostECCTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		DF16D827C4A58C7DD918EB37 /* Frameworks */ = {
+		990FE20E1C4D7324484A73D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A7E39D89DFBA08B65DE2DF17 /* Pods_GhostECC.framework */,
-				BD9C82BB61F1960A5427C0B0 /* Pods_GhostECCTests.framework */,
+				BB8F11EF3910B495E3E2F99E /* Pods_GhostECC.framework */,
+				274A2AC518594353E294F4B0 /* Pods_GhostECCTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -201,15 +206,15 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		000000000000000000000056 /* GhostECC */ = {
+		000000000000000000000058 /* GhostECC */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 000000000000000000000048 /* Build configuration list for PBXNativeTarget "GhostECC" */;
+			buildConfigurationList = 00000000000000000000004A /* Build configuration list for PBXNativeTarget "GhostECC" */;
 			buildPhases = (
-				7F0671515DCBE8CFCFB6456D /* [CP] Check Pods Manifest.lock */,
-				00000000000000000000004C /* Sources */,
-				000000000000000000000052 /* Frameworks */,
-				000000000000000000000051 /* Resources */,
-				DEAD660402EA4FE56694EDE3 /* [CP] Embed Pods Frameworks */,
+				21F75E2D284A080D38D7820F /* [CP] Check Pods Manifest.lock */,
+				00000000000000000000004E /* Sources */,
+				000000000000000000000054 /* Frameworks */,
+				000000000000000000000053 /* Resources */,
+				3446FE43683C09FD656AB381 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -217,77 +222,73 @@
 			);
 			name = GhostECC;
 			productName = GhostECC;
-			productReference = 00000000000000000000003F /* GhostECC.app */;
+			productReference = 000000000000000000000041 /* GhostECC.app */;
 			productType = "com.apple.product-type.application";
 		};
-		000000000000000000000057 /* GhostECCTests */ = {
+		000000000000000000000059 /* GhostECCTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00000000000000000000004B /* Build configuration list for PBXNativeTarget "GhostECCTests" */;
+			buildConfigurationList = 00000000000000000000004D /* Build configuration list for PBXNativeTarget "GhostECCTests" */;
 			buildPhases = (
-				7BA3C66BA2644F65EA494E61 /* [CP] Check Pods Manifest.lock */,
-				000000000000000000000053 /* Sources */,
-				000000000000000000000055 /* Frameworks */,
-				000000000000000000000054 /* Resources */,
+				9908075C065068A6FFDC9868 /* [CP] Check Pods Manifest.lock */,
+				000000000000000000000055 /* Sources */,
+				000000000000000000000057 /* Frameworks */,
+				000000000000000000000056 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				00000000000000000000005A /* PBXTargetDependency */,
+				00000000000000000000005C /* PBXTargetDependency */,
 			);
 			name = GhostECCTests;
 			productName = GhostECCTests;
-			productReference = 000000000000000000000040 /* GhostECCTests.xctest */;
+			productReference = 000000000000000000000042 /* GhostECCTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		000000000000000000000058 /* Project object */ = {
+		00000000000000000000005A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					000000000000000000000057 = {
-						TestTargetID = 000000000000000000000056;
+					000000000000000000000059 = {
+						TestTargetID = 000000000000000000000058;
 					};
 				};
 			};
-			buildConfigurationList = 000000000000000000000045 /* Build configuration list for PBXProject "GhostECC" */;
+			buildConfigurationList = 000000000000000000000047 /* Build configuration list for PBXProject "GhostECC" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
-				"sr-Latn",
-				sr,
-				hr,
-				bs,
 			);
-			mainGroup = 000000000000000000000042;
-			productRefGroup = 000000000000000000000041 /* Products */;
+			mainGroup = 000000000000000000000044;
+			productRefGroup = 000000000000000000000043 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				000000000000000000000056 /* GhostECC */,
-				000000000000000000000057 /* GhostECCTests */,
+				000000000000000000000058 /* GhostECC */,
+				000000000000000000000059 /* GhostECCTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		000000000000000000000051 /* Resources */ = {
+		000000000000000000000053 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00000000000000000000004D /* Assets.xcassets in Resources */,
-				00000000000000000000004E /* PrivacyInfo.xcprivacy in Resources */,
-				00000000000000000000004F /* Localizable.strings in Resources */,
-				000000000000000000000050 /* InfoPlist.strings in Resources */,
+				00000000000000000000004F /* Assets.xcassets in Resources */,
+				000000000000000000000050 /* PrivacyInfo.xcprivacy in Resources */,
+				000000000000000000000051 /* Localizable.strings in Resources */,
+				000000000000000000000052 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		000000000000000000000054 /* Resources */ = {
+		000000000000000000000056 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -297,29 +298,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		7BA3C66BA2644F65EA494E61 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-GhostECCTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7F0671515DCBE8CFCFB6456D /* [CP] Check Pods Manifest.lock */ = {
+		21F75E2D284A080D38D7820F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -341,7 +320,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DEAD660402EA4FE56694EDE3 /* [CP] Embed Pods Frameworks */ = {
+		3446FE43683C09FD656AB381 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -362,10 +341,32 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GhostECC/Pods-GhostECC-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		9908075C065068A6FFDC9868 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GhostECCTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		00000000000000000000004C /* Sources */ = {
+		00000000000000000000004E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -378,58 +379,57 @@
 				00000000000000000000000E /* Networking/APIModels.swift in Sources */,
 				000000000000000000000010 /* Networking/LocalPeer.swift in Sources */,
 				000000000000000000000012 /* Networking/RelayClient.swift in Sources */,
-				000000000000000000000014 /* Security/KeychainVault.swift in Sources */,
-				000000000000000000000016 /* Security/SignalEngine.swift in Sources */,
-				000000000000000000000018 /* Security/SignalStore.swift in Sources */,
-				00000000000000000000001A /* Views/AboutView.swift in Sources */,
-				00000000000000000000001C /* Views/ChatView.swift in Sources */,
-				00000000000000000000001E /* Views/ContactDetailView.swift in Sources */,
-				000000000000000000000020 /* Views/IdentityView.swift in Sources */,
-				000000000000000000000022 /* Views/InboxView.swift in Sources */,
-				000000000000000000000024 /* Views/PrivacyShield.swift in Sources */,
-				000000000000000000000026 /* Views/PrivacyView.swift in Sources */,
-				000000000000000000000028 /* Views/QRScanView.swift in Sources */,
-				00000000000000000000002A /* Views/RootView.swift in Sources */,
-				00000000000000000000002C /* Views/Theme.swift in Sources */,
+				000000000000000000000014 /* Security/AppPIN.swift in Sources */,
+				000000000000000000000016 /* Security/KeychainVault.swift in Sources */,
+				000000000000000000000018 /* Security/SignalEngine.swift in Sources */,
+				00000000000000000000001A /* Security/SignalStore.swift in Sources */,
+				00000000000000000000001C /* Views/AboutView.swift in Sources */,
+				00000000000000000000001E /* Views/ChatView.swift in Sources */,
+				000000000000000000000020 /* Views/ContactDetailView.swift in Sources */,
+				000000000000000000000022 /* Views/GroupViews.swift in Sources */,
+				000000000000000000000024 /* Views/IdentityView.swift in Sources */,
+				000000000000000000000026 /* Views/InboxView.swift in Sources */,
+				000000000000000000000028 /* Views/PinViews.swift in Sources */,
+				00000000000000000000002A /* Views/PrivacyShield.swift in Sources */,
+				00000000000000000000002C /* Views/PrivacyView.swift in Sources */,
+				00000000000000000000002E /* Views/QRScanView.swift in Sources */,
+				000000000000000000000030 /* Views/RootView.swift in Sources */,
+				000000000000000000000032 /* Views/Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		000000000000000000000053 /* Sources */ = {
+		000000000000000000000055 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00000000000000000000003B /* PrivacyRulesTests.swift in Sources */,
-				00000000000000000000003D /* SignalIntegrationTests.swift in Sources */,
+				00000000000000000000003D /* PrivacyRulesTests.swift in Sources */,
+				00000000000000000000003F /* SignalIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		00000000000000000000005A /* PBXTargetDependency */ = {
+		00000000000000000000005C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 000000000000000000000056 /* GhostECC */;
-			targetProxy = 000000000000000000000059 /* PBXContainerItemProxy */;
+			target = 000000000000000000000058 /* GhostECC */;
+			targetProxy = 00000000000000000000005B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		000000000000000000000036 /* Localizable.strings */ = {
+		000000000000000000000038 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				000000000000000000000031 /* en */,
-				000000000000000000000032 /* sr-Latn */,
-				000000000000000000000033 /* sr */,
-				000000000000000000000034 /* hr */,
-				000000000000000000000035 /* bs */,
+				000000000000000000000037 /* en */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
-		000000000000000000000038 /* InfoPlist.strings */ = {
+		00000000000000000000003A /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				000000000000000000000037 /* en */,
+				000000000000000000000039 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -437,12 +437,14 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		000000000000000000000043 /* Debug */ = {
+		000000000000000000000045 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -450,11 +452,12 @@
 			};
 			name = Debug;
 		};
-		000000000000000000000044 /* Release */ = {
+		000000000000000000000046 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -462,9 +465,9 @@
 			};
 			name = Release;
 		};
-		000000000000000000000046 /* Debug */ = {
+		000000000000000000000048 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2D02C3249BD2CBD2C96DA609 /* Pods-GhostECC.debug.xcconfig */;
+			baseConfigurationReference = 54F1DBB8A2E84073C5150220 /* Pods-GhostECC.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -476,14 +479,14 @@
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghost Talk";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan the QR code of a Ghost invitation.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Unlock Ghost Talk.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record a voice message. The audio stays in memory only.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -493,9 +496,9 @@
 			};
 			name = Debug;
 		};
-		000000000000000000000047 /* Release */ = {
+		000000000000000000000049 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BF2E33E7E91D901D363AFB7C /* Pods-GhostECC.release.xcconfig */;
+			baseConfigurationReference = D243A900706A86FA48CB31DE /* Pods-GhostECC.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -506,14 +509,14 @@
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GhostECC/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Ghost ECC";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Skeniraj QR kod Ghost pozivnice.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Otključaj Ghost ECC.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Snimi glasovnu poruku. Zvuk ostaje samo u memoriji.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghost Talk";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Scan the QR code of a Ghost invitation.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Unlock Ghost Talk.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record a voice message. The audio stays in memory only.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -522,16 +525,15 @@
 			};
 			name = Release;
 		};
-		000000000000000000000049 /* Debug */ = {
+		00000000000000000000004B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EB634F919798959F6110DBAC /* Pods-GhostECCTests.debug.xcconfig */;
+			baseConfigurationReference = E6632E3C4A9EAAABF1D77E18 /* Pods-GhostECCTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = L27TXB4S6A;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app;
+				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -539,16 +541,15 @@
 			};
 			name = Debug;
 		};
-		00000000000000000000004A /* Release */ = {
+		00000000000000000000004C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B07E0FCB812898952F9C5AA /* Pods-GhostECCTests.release.xcconfig */;
+			baseConfigurationReference = 22A8B77801D67BF4F19DE67F /* Pods-GhostECCTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = L27TXB4S6A;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app;
+				PRODUCT_BUNDLE_IDENTIFIER = net.lazarp.ghostecc.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GhostECC.app/GhostECC";
@@ -558,34 +559,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		000000000000000000000045 /* Build configuration list for PBXProject "GhostECC" */ = {
+		000000000000000000000047 /* Build configuration list for PBXProject "GhostECC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				000000000000000000000043 /* Debug */,
-				000000000000000000000044 /* Release */,
+				000000000000000000000045 /* Debug */,
+				000000000000000000000046 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		000000000000000000000048 /* Build configuration list for PBXNativeTarget "GhostECC" */ = {
+		00000000000000000000004A /* Build configuration list for PBXNativeTarget "GhostECC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				000000000000000000000046 /* Debug */,
-				000000000000000000000047 /* Release */,
+				000000000000000000000048 /* Debug */,
+				000000000000000000000049 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00000000000000000000004B /* Build configuration list for PBXNativeTarget "GhostECCTests" */ = {
+		00000000000000000000004D /* Build configuration list for PBXNativeTarget "GhostECCTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				000000000000000000000049 /* Debug */,
-				00000000000000000000004A /* Release */,
+				00000000000000000000004B /* Debug */,
+				00000000000000000000004C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 000000000000000000000058 /* Project object */;
+	rootObject = 00000000000000000000005A /* Project object */;
 }

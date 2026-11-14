@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ghost ECC localization.
+"""Ghost Talk localization.
 
 The Swift code uses Serbian (ijekavian, Latin) text as localization keys. This script
   1. extracts every localized literal from the app sources,
@@ -17,13 +17,14 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'GhostECC'
 L10N = APP / 'Localization'
 TRANSLATIONS = L10N / 'translations-en.json'
-SERBIAN_FAMILY = ['sr-Latn', 'sr', 'hr', 'bs']
+# The app ships in English only; Serbian is just the key language in the source.
+SERBIAN_FAMILY: list = []
 
 # Keys used outside Swift literals (APNs payload loc-key) with their Serbian text.
 EXTRA = {'PUSH_NEW_MESSAGE': 'Nova poruka'}
 # Info.plist strings, localized through InfoPlist.strings.
 INFO_PLIST_EN = {
-    'NSFaceIDUsageDescription': 'Unlock Ghost ECC.',
+    'NSFaceIDUsageDescription': 'Unlock Ghost Talk.',
     'NSCameraUsageDescription': 'Scan the QR code of a Ghost invitation.',
     'NSMicrophoneUsageDescription': 'Record a voice message. The audio stays in memory only.',
 }

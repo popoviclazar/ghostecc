@@ -21,7 +21,9 @@ actor LocalPeer {
         if case .text(let text) = content, text.utf8.count <= Limits.maxTextBytes - 64 {
             echo = .text(String(localized: "Primljeno u lokalnom testu: \(text)"))
         }
-        let reply = try PrivatePayload(sender: identity.0, recipient: opened.payload.sender, content: echo, lifetime: lifetime)
+        // A Ghost Lab group message is answered inside the same group.
+        let reply = try PrivatePayload(sender: identity.0, recipient: opened.payload.sender, content: echo, lifetime: lifetime,
+                                       group: opened.payload.group?.id)
         return try await engine.encrypt(reply)
     }
 }

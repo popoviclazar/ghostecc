@@ -1,6 +1,6 @@
 # Ghost relay server
 
-Relay za Ghost ECC: anonimni jednosmjerni sandučići, samo šifrati, poruke samo u RAM-u. Node.js 20 ili noviji, bez npm zavisnosti.
+Relay za Ghost Talk: anonimni jednosmjerni sandučići, samo šifrati, poruke samo u RAM-u. Node.js 20 ili noviji, bez npm zavisnosti.
 
 ## Lokalno
 
@@ -48,8 +48,8 @@ Ručna instalacija, korak po korak, odgovara sadržaju `deploy/install.sh`, `dep
    bash /root/ghost-relay-src/deploy/install.sh relay.tvojdomen.com --apns-key /root/AuthKey_XXXXXXXXXX.p8 --team-id AB12CD34EF
    rm /root/AuthKey_XXXXXXXXXX.p8
    ```
-   Key ID se čita iz imena fajla. `--topic` je bundle ID aplikacije i podrazumijevano je `net.ghostecc.app`; ako u Xcode-u promijeniš bundle ID, navedi ga i ovdje.
-5. `journalctl -u ghost-relay -n 5` treba da pokaže `push on (net.ghostecc.app)`.
+   Key ID se čita iz imena fajla. `--topic` je bundle ID aplikacije i podrazumijevano je `net.lazarp.ghostecc.app`; ako u Xcode-u promijeniš bundle ID, navedi ga i ovdje.
+5. `journalctl -u ghost-relay -n 5` treba da pokaže `push on (net.lazarp.ghostecc.app)`.
 
 Ključ ostaje u `/etc/ghost-relay` (dozvole 0600) i servisu se predaje kao systemd credential; kasnija pokretanja skripte bez `--apns-key` zadržavaju postojeće podešavanje.
 

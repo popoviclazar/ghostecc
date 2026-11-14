@@ -1,11 +1,9 @@
 import SwiftUI
-import UIKit
 
 struct PrivacyView: View {
     @EnvironmentObject private var store: AppStore
     @State private var deleting = false
     @State private var pinSheet: PinSheet?
-    @Environment(\.openURL) private var openURL
     var body: some View {
         NavigationStack {
             Form {
@@ -23,16 +21,8 @@ struct PrivacyView: View {
                     Toggle(isOn: setting(\.hideDuringCapture)) { Label("Sakrij pri snimanju ekrana", systemImage: "eye.slash") }
                 } header: { Text("Uređaj") } footer: {
                     Text(store.pinEnabled
-                         ? String(localized: "Ghost ECC otključava samo šifra aplikacije, a Face ID ako je uključen; šifra telefona ne. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana.")
-                         : String(localized: "Face ID, Touch ID ili šifra uređaja. Sa šifrom aplikacije, šifra telefona više ne otključava Ghost ECC. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana."))
-                }
-                Section {
-                    // iOS keeps a per-app language in the app's own Settings page once the app has several localizations.
-                    Button {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
-                    } label: { Label("Jezik aplikacije", systemImage: "globe") }
-                } header: { Text("Jezik") } footer: {
-                    Text("Jezik biraš u iOS podešavanjima aplikacije (Language). Bez izbora aplikacija prati jezik telefona.")
+                         ? String(localized: "Ghost Talk otključava samo šifra aplikacije, a Face ID ako je uključen; šifra telefona ne. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana.")
+                         : String(localized: "Face ID, Touch ID ili šifra uređaja. Sa šifrom aplikacije, šifra telefona više ne otključava Ghost Talk. iOS ne omogućava pouzdanu zabranu svih snimaka ekrana."))
                 }
                 Section {
                     Picker(selection: setting(\.lifetime)) {
@@ -50,7 +40,7 @@ struct PrivacyView: View {
                     }
                     Toggle(isOn: setting(\.inAppSound)) { Label("Zvuk u otvorenoj aplikaciji", systemImage: "speaker.wave.2") }
                 } header: { Text("Obavještenja") } footer: {
-                    Text("Obavještenje uvijek glasi samo „Nova poruka“: bez imena, Ghost ID-a i sadržaja. Da bi ga poslao, server zna koji sandučići pripadaju ovom uređaju; tu vezu drži samo u memoriji, a Apple vidi da je stiglo obavještenje.")
+                    Text("Obavještenje uvijek glasi samo „Nova poruka“, uz broj novih poruka na ikonici: bez imena, Ghost ID-a i sadržaja. Da bi ga poslao, server zna koji sandučići pripadaju ovom uređaju; tu vezu i brojač drži samo u memoriji, a Apple vidi da je stiglo obavještenje i taj broj.")
                 }
                 Section {
                     HStack {
@@ -65,15 +55,10 @@ struct PrivacyView: View {
                 Section {
                     Button { Task { await store.addDemo() } } label: { Label("Dodaj Ghost Lab kontakt", systemImage: "testtube.2") }
                         .disabled(store.busy || store.contacts.contains(where: \.isDemo))
+                    Button { Task { await store.addDemoGroup() } } label: { Label("Isprobaj grupu sa Ghost Lab-om", systemImage: "person.3") }
+                        .disabled(store.busy || store.groups.contains(where: { $0.isDemo == true }))
                 } header: { Text("Ghost Lab") } footer: {
-                    Text("Lokalni sagovornik za probu šifrovanih poruka, bez interneta i bez druge osobe.")
-                }
-                Section {
-                    Button {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
-                    } label: { Label("Jezik aplikacije", systemImage: "globe") }
-                } footer: {
-                    Text("Jezik biraš u iOS podešavanjima aplikacije, pod Language. Ako te opcije nema, u iOS-u dodaj još jedan jezik u General → Language & Region.")
+                    Text("Lokalni sagovornik za probu šifrovanih poruka, grupa i prosljeđivanja, bez interneta i bez druge osobe.")
                 }
                 Section {
                     NavigationLink { AboutView() } label: { Label("O aplikaciji", systemImage: "info.circle") }

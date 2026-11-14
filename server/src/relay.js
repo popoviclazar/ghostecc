@@ -1,4 +1,4 @@
-// Ghost ECC relay core. No accounts, no identities: only random one-way queues.
+// Ghost Talk relay core. No accounts, no identities: only random one-way queues.
 // Message bodies are opaque ciphertext and live in RAM only.
 import { createHash, createPublicKey, randomBytes, verify } from 'node:crypto';
 
@@ -96,6 +96,7 @@ export class RelayStore {
     this.nonces = new Map();   // op:queue:nonce -> expiry
     this.pushTargets = new Map(); // recipientId -> { token, environment }; RAM only, never persisted
     this.onMessage = null;      // called with recipientId for every newly stored message
+    this.onFetch = null;        // called with recipientId when its owner fetched it (app opened)
     this.totalBytes = 0;
     this.dirty = false;
   }
@@ -247,6 +248,7 @@ export class RelayStore {
         continue;
       }
       if (record.activeDay !== today) { record.activeDay = today; this.dirty = true; }
+      this.onFetch?.(recipientId);
       statuses.push({ recipientId, status: 'ok' });
       const box = this.inbox.get(recipientId);
       if (box?.items.length) boxes.push({ recipientId, items: box.items, index: 0 });

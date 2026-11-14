@@ -173,6 +173,59 @@ final class PrivacyRulesTests: XCTestCase {
         let restored = try WireCodec.decoder().decode(PinRecord.self, from: WireCodec.encoder().encode(record))
         XCTAssertTrue(AppPIN.matches("246810", restored))
     }
+    func testGroupPayloadRules() throws {
+        let gid = GhostGroup.newID()
+        XCTAssertTrue(GhostGroup.isValidID(gid))
+        let content = try PrivatePayload(sender: alice, recipient: bob, content: .text("hi"), group: gid, forwarded: true)
+        XCTAssertNoThrow(try content.validate(sender: alice, recipient: bob))
+        XCTAssertEqual(content.group?.id, gid)
+        XCTAssertEqual(content.forwarded, true)
+        XCTAssertThrowsError(try PrivatePayload(sender: alice, recipient: bob, content: .text("hi"), group: "bad"))
+        let aliceKey = Data(repeating: 1, count: 33), bobKey = Data(repeating: 2, count: 33)
+        let members = [GroupMember(ghostID: alice, name: "", identityKey: aliceKey), GroupMember(ghostID: bob, name: "Bob", identityKey: bobKey)]
+        let update = PrivatePayload.groupControl(.groupUpdate, sender: alice, recipient: bob, info: GroupInfo(id: gid, name: "Tim", admin: alice, members: members))
+        XCTAssertNoThrow(try update.validate(sender: alice, recipient: bob))
+        // Nobody can speak for another admin, and every member key must match its Ghost ID.
+        let forgedAdmin = PrivatePayload.groupControl(.groupUpdate, sender: bob, recipient: alice, info: GroupInfo(id: gid, name: "Tim", admin: alice, members: members))
+        XCTAssertThrowsError(try forgedAdmin.validate(sender: bob, recipient: alice))
+        let wrongKey = [GroupMember(ghostID: alice, name: "", identityKey: bobKey), members[1]]
+        let badMembers = PrivatePayload.groupControl(.groupUpdate, sender: alice, recipient: bob, info: GroupInfo(id: gid, name: "Tim", admin: alice, members: wrongKey))
+        XCTAssertThrowsError(try badMembers.validate(sender: alice, recipient: bob))
+        let leave = PrivatePayload.groupControl(.groupLeave, sender: bob, recipient: alice, info: GroupInfo(id: gid))
+        XCTAssertNoThrow(try leave.validate(sender: bob, recipient: alice))
+        let badIntro = PrivatePayload.groupControl(.groupIntro, sender: bob, recipient: alice, info: GroupInfo(id: gid, introFor: alice, link: "nope"))
+        XCTAssertThrowsError(try badIntro.validate(sender: bob, recipient: alice))
+        // Ordinary group content cannot carry membership changes.
+        var json = try JSONSerialization.jsonObject(with: WireCodec.encoder().encode(content)) as! [String: Any]
+        json["group"] = ["id": gid, "name": "x"]
+        let forged = try WireCodec.decoder().decode(PrivatePayload.self, from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertThrowsError(try forged.validate(sender: alice, recipient: bob))
+    }
+    func testMetadataFromVersionOneStillLoads() throws {
+        let old = try WireCodec.encoder().encode(["contacts": [String](), "invites": [String]()])
+        let decoded = try WireCodec.decoder().decode(LocalMetadata.self, from: old)
+        XCTAssertTrue(decoded.groups.isEmpty)
+        XCTAssertTrue(decoded.contacts.isEmpty)
+    }
+    func testRepliesReactionsAndRetractions() throws {
+        let original = try PrivatePayload(sender: alice, recipient: bob, content: .text("hi"))
+        let reply = try PrivatePayload(sender: bob, recipient: alice, content: .text("hello"), quote: Quote(id: original.id, sender: alice, preview: "hi"))
+        XCTAssertNoThrow(try reply.validate(sender: bob, recipient: alice))
+        XCTAssertThrowsError(try PrivatePayload(sender: bob, recipient: alice, content: .text("x"),
+                                                quote: Quote(id: UUID(), sender: alice, preview: String(repeating: "a", count: 121))))
+        let reaction = PrivatePayload.reaction(sender: bob, recipient: alice, target: original.id, emoji: "❤️")
+        XCTAssertNoThrow(try reaction.validate(sender: bob, recipient: alice))
+        XCTAssertNoThrow(try PrivatePayload.reaction(sender: bob, recipient: alice, target: original.id, emoji: "").validate(sender: bob, recipient: alice))
+        XCTAssertThrowsError(try PrivatePayload.reaction(sender: bob, recipient: alice, target: original.id, emoji: "❤️👍").validate(sender: bob, recipient: alice))
+        XCTAssertNoThrow(try PrivatePayload.retraction(sender: alice, recipient: bob, target: original.id, group: GhostGroup.newID()).validate(sender: alice, recipient: bob))
+        // A reaction cannot carry content, and content cannot carry a reaction target.
+        var json = try JSONSerialization.jsonObject(with: WireCodec.encoder().encode(reaction)) as! [String: Any]
+        json["text"] = "smuggled"
+        XCTAssertThrowsError(try WireCodec.decoder().decode(PrivatePayload.self, from: JSONSerialization.data(withJSONObject: json)).validate(sender: bob, recipient: alice))
+        var json2 = try JSONSerialization.jsonObject(with: WireCodec.encoder().encode(original)) as! [String: Any]
+        json2["target"] = UUID().uuidString
+        XCTAssertThrowsError(try WireCodec.decoder().decode(PrivatePayload.self, from: JSONSerialization.data(withJSONObject: json2)).validate(sender: alice, recipient: bob))
+    }
     func testNotifyDigestMatchesServerVector() {
         // Same vector as server/test/push.test.js.
         XCTAssertEqual(String(decoding: RelayClient.notifyDigestInput(token: "ab", environment: "sandbox"), as: UTF8.self), "ab|sandbox")

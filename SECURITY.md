@@ -4,7 +4,7 @@
 
 Email **popoviclazar65@gmail.com** with a description and, if possible, steps to reproduce. Please give a reasonable time to fix the issue before publishing it. Never send private keys.
 
-Ghost ECC has **not yet had an independent security audit**.
+Ghost Talk has **not yet had an independent security audit**.
 
 ## Cryptography
 
@@ -16,16 +16,20 @@ Ghost ECC has **not yet had an independent security audit**.
 - **Transport:** HTTPS with TLS 1.3. Plaintext is padded to fixed size buckets before encryption so message length is not visible.
 - No custom cryptography: libsignal and Apple CryptoKit only.
 
-## What Ghost ECC protects
+## What Ghost Talk protects
 
 - **Message content** from the relay operator, the network and anyone without the device keys.
 - **Who talks to whom** from the relay as far as identities go: no accounts, no directory, no Ghost IDs on the server; the sender exists only inside the ciphertext.
 - **Unwanted contact:** only someone holding your one-time invitation can reach you; the first valid sender locks the mailbox to their key.
 - **On the device:** keys and contacts in the Keychain (`WhenUnlockedThisDeviceOnly`, never synced); messages, photos, voice messages and files only in memory; Face ID / passcode lock; content hidden in the app switcher and during screen recording; optional wipe of all chats when leaving the app; third-party keyboards blocked; photo metadata stripped.
 
+## Groups
+
+A group exists only on its members' phones: there is no group object on the relay. Each group message is a normal Signal message sent separately to every member, carrying only a random group ID. The admin (the creator) controls membership; members accept or decline invitations, and only contacts verified by safety number can invite you. Members who are not yet connected are introduced through the admin with a one-time invitation bound to the intended member's identity key, so nobody else can use it. The admin is trusted for these introductions, as in other messengers; such connections are marked "connected through the group" until the members verify each other's safety number.
+
 ## App passcode
 
-Optional, under Privacy → Device. With a passcode set, the device passcode no longer opens Ghost ECC; Face ID / Touch ID can stay enabled as a shortcut. The passcode (6–16 digits) is never stored: only a verifier, PBKDF2-SHA256 with 400,000 iterations and a random salt, bound through HMAC to a key inside the Secure Enclave where available, so guesses have to be made on the phone itself. Waiting time grows after 5 wrong attempts up to one hour, and an optional setting erases the identity after 10. If someone adds a face or finger to the phone, biometrics stop opening the app until the passcode is entered. The passcode controls access to the app; the keys themselves remain protected by the iOS Keychain.
+Optional, under Privacy → Device. With a passcode set, the device passcode no longer opens Ghost Talk; Face ID / Touch ID can stay enabled as a shortcut. The passcode (6–16 digits) is never stored: only a verifier, PBKDF2-SHA256 with 400,000 iterations and a random salt, bound through HMAC to a key inside the Secure Enclave where available, so guesses have to be made on the phone itself. Waiting time grows after 5 wrong attempts up to one hour, and an optional setting erases the identity after 10. If someone adds a face or finger to the phone, biometrics stop opening the app until the passcode is entered. The passcode controls access to the app; the keys themselves remain protected by the iOS Keychain.
 
 ## What it does not protect
 
@@ -37,4 +41,4 @@ Optional, under Privacy → Device. With a passcode set, the device passcode no 
 
 ## Push notifications
 
-Optional and off until the user allows them. To send one, the relay keeps a link between the device's APNs token and its mailboxes, in memory only. Apple sees that a notification reached the device; the notification always says only "New message".
+Optional and off until the user allows them. To send one, the relay keeps a link between the device's APNs token and its mailboxes, in memory only. Apple sees that a notification reached the device and the icon badge number (new messages since the app was last opened); the notification always says only "New message". The relay keeps that count in memory only and resets it when the app fetches.

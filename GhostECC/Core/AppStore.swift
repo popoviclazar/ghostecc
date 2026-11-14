@@ -11,6 +11,7 @@ final class AppStore: ObservableObject {
     @Published private(set) var publicKey: Data?
     @Published private(set) var contacts: [Contact] = []
     @Published private(set) var invites: [PendingInvite] = []
+    @Published private(set) var groups: [GhostGroup] = []
     @Published private(set) var messages: [String: [ChatMessage]] = [:]
     /// Unread counts per contact, RAM only like the messages themselves.
     @Published private(set) var unread: [String: Int] = [:]
@@ -49,6 +50,10 @@ final class AppStore: ObservableObject {
     private var lastIncomingFeedback = Date.distantPast
     private var awaitingSystemSettings = false
     private var activeChatID: String?
+    private var lastServerCheck = Date.distantPast
+    /// Group control messages the relay did not take yet; retried with the protocol messages (RAM only).
+    private var controlOutbox: [(contactID: String, payload: PrivatePayload)] = []
+    private var introSentAt: [UUID: Date] = [:]
 
     var cryptoAvailable: Bool { SignalEngine.available }
     var shouldCover: Bool { covered || locked || (settings.hideDuringCapture && captured) }
@@ -81,6 +86,7 @@ final class AppStore: ObservableObject {
                 if let metadata = try vault.load("metadata") {
                     let decoded = try WireCodec.decoder().decode(LocalMetadata.self, from: metadata)
                     contacts = decoded.contacts.filter { !$0.isDemo }; invites = decoded.invites; settings = decoded.settings
+                    groups = decoded.groups
                 }
                 locked = settings.lockEnabled
                 if settings.notificationsEnabled { UIApplication.shared.registerForRemoteNotifications() }
@@ -112,7 +118,7 @@ final class AppStore: ObservableObject {
             context.localizedFallbackTitle = ""
             var unavailable: NSError?
             guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &unavailable) else { return }
-            guard (try? await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: String(localized: "Otključaj Ghost ECC"))) == true else { return }
+            guard (try? await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: String(localized: "Otključaj Ghost Talk"))) == true else { return }
             if let saved = record.biometryState, saved != context.evaluatedPolicyDomainState {
                 notice = String(localized: "Face ID ili Touch ID podaci na telefonu su promijenjeni. Unesi šifru aplikacije.")
                 return
@@ -126,7 +132,7 @@ final class AppStore: ObservableObject {
         }
         do {
             let context = LAContext()
-            let accepted = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: String(localized: "Otključaj Ghost ECC"))
+            let accepted = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: String(localized: "Otključaj Ghost Talk"))
             guard accepted else { return }
             await finishUnlock()
         } catch { self.error = String(localized: "Otključavanje nije uspjelo.") }
@@ -161,7 +167,10 @@ final class AppStore: ObservableObject {
 
     /// Checking is deliberately slow (PBKDF2), so it runs off the main thread.
     private func pinMatches(_ pin: String, _ record: PinRecord) async -> Bool {
-        await Task.detached(priority: .userInitiated) { AppPIN.matches(pin, record) }.value
+        let check = Task.detached(priority: .userInitiated) { () -> Bool in
+            AppPIN.matches(pin, record)
+        }
+        return await check.value
     }
 
     func unlock(pin: String) async {
@@ -195,11 +204,14 @@ final class AppStore: ObservableObject {
         }
         guard AppPIN.isValidFormat(pin) else { error = String(localized: "Šifra mora imati od 6 do 16 cifara."); return false }
         do {
-            var record = try await Task.detached(priority: .userInitiated) { try AppPIN.makeRecord(pin) }.value
+            let creation = Task.detached(priority: .userInitiated) { () throws -> PinRecord in
+                try AppPIN.makeRecord(pin)
+            }
+            var record = try await creation.value
             record.biometryState = Self.biometryState()
             try savePin(record)
             if !settings.lockEnabled { var value = settings; value.lockEnabled = true; updateSettings(value) }
-            notice = String(localized: "Šifra aplikacije je sačuvana. Šifra telefona više ne otključava Ghost ECC.")
+            notice = String(localized: "Šifra aplikacije je sačuvana. Šifra telefona više ne otključava Ghost Talk.")
             return true
         } catch { self.error = error.localizedDescription; return false }
     }
@@ -219,8 +231,11 @@ final class AppStore: ObservableObject {
             foreground = true; covered = false; captured = Self.screenCaptured
             // New messages are shown in the app; re-register push in case the relay restarted (its mapping is RAM-only).
             UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+            // The icon badge counts new messages since the app was last open; the relay resets its count on fetch.
+            Task { try? await UNUserNotificationCenter.current().setBadgeCount(0) }
             registeredPush = []
             Task { await refreshNotificationAuthorization() }
+            Task { await checkServerIfIdle() }
             if !locked { startSync() }
         case .inactive:
             covered = true
@@ -243,7 +258,8 @@ final class AppStore: ObservableObject {
     // MARK: - Settings
 
     private func persistMetadata() throws {
-        let metadata = LocalMetadata(contacts: contacts.filter { !$0.isDemo }, invites: invites, settings: settings)
+        let metadata = LocalMetadata(contacts: contacts.filter { !$0.isDemo }, invites: invites, settings: settings,
+                                     groups: groups.filter { $0.isDemo != true })
         try vault.save(WireCodec.encoder().encode(metadata), account: "metadata")
     }
 
@@ -268,7 +284,7 @@ final class AppStore: ObservableObject {
         busy = true; defer { busy = false }
         var bundleID: UInt32?
         do {
-            guard invites.count < Limits.maxInvites, contacts.count < Limits.maxContacts else { throw GhostError.limit }
+            guard invites.filter({ $0.introduction == nil }).count < Limits.maxInvites, contacts.count < Limits.maxContacts else { throw GhostError.limit }
             let bundle = try await engine.invitationBundle()
             bundleID = bundle.preKey.id
             let linkKey = SecureRandom.bytes(32)
@@ -345,21 +361,36 @@ final class AppStore: ObservableObject {
         guard let me = identity, payload.kind == .hello, let reply = payload.reply,
               invites.contains(where: { $0.id == invite.id }) else { return }
         let peer = GhostID(identityKey: senderKey)
+        var name = invite.name
+        var introducedIn: [String]? = nil
+        if let tag = invite.introduction {
+            // A group introduction link works only for the member it was made for.
+            guard peer == tag.member, let group = self.group(tag.groupID), group.state == .joined,
+                  let member = group.member(peer), member.identityKey == senderKey else {
+                await cancelInvite(invite.id)
+                return
+            }
+            name = member.name
+            introducedIn = [tag.groupID]
+        }
         guard peer != me, !contacts.contains(where: { $0.ghostID == peer }), contacts.count < Limits.maxContacts else {
-            notice = String(localized: "Pozivnicu je iskoristio postojeći kontakt ili je dostignut limit kontakata.")
+            if introducedIn == nil { notice = String(localized: "Pozivnicu je iskoristio postojeći kontakt ili je dostignut limit kontakata.") }
             invites.removeAll { $0.id == invite.id }
             try? persistMetadata()
             return
         }
         let outbound = OutboundQueue(server: reply.server, senderID: reply.senderID, senderKey: Curve25519.Signing.PrivateKey().rawRepresentation, secured: false)
-        let contact = Contact(ghostID: peer, name: invite.name, identityKey: senderKey, state: .connected, inbound: invite.inbound, outbound: outbound)
+        let contact = Contact(ghostID: peer, name: name, identityKey: senderKey, state: .connected, inbound: invite.inbound, outbound: outbound,
+                              introducedIn: introducedIn)
         let previousInvites = invites, previousContacts = contacts
         invites.removeAll { $0.id == invite.id }
         contacts.append(contact)
         do { try persistMetadata() } catch {
             invites = previousInvites; contacts = previousContacts; self.error = error.localizedDescription; return
         }
-        notice = String(localized: "\(contact.title) se povezao preko pozivnice. Uporedi sigurnosni broj prije slanja poruka.")
+        if introducedIn == nil {
+            notice = String(localized: "\(contact.title) se povezao preko pozivnice. Uporedi sigurnosni broj prije slanja poruka.")
+        }
         await sendProtocol(.ready, to: contact.id)
     }
 
@@ -375,7 +406,7 @@ final class AppStore: ObservableObject {
                 payload = PrivatePayload.hello(sender: me, recipient: contact.ghostID, reply: ReplyAddress(server: inbound.server, senderID: inbound.senderID))
             case .ready:
                 payload = PrivatePayload.ready(sender: me, recipient: contact.ghostID)
-            case .text, .photo, .voice, .file:
+            case .text, .photo, .voice, .file, .groupUpdate, .groupLeave, .groupIntro, .reaction, .retract:
                 return
             }
             let wire = try await engine.encrypt(payload)
@@ -398,6 +429,7 @@ final class AppStore: ObservableObject {
     /// Unsecured queues get hello/ready again. A hello lives 24 h on the relay while an invitation is valid 7 days,
     /// so a joiner still waiting for ready repeats hello every 6 h; the inviter ignores duplicates.
     private func retryProtocolMessages(now: Date = Date()) async {
+        await retryGroupWork(now: now)
         for contact in contacts where !contact.isDemo && contact.state != .disconnected {
             guard let outbound = contact.outbound else { continue }
             if !outbound.secured {
@@ -464,7 +496,12 @@ final class AppStore: ObservableObject {
         contacts.removeAll { $0.id == id }
         do { try persistMetadata() } catch { contacts = old; self.error = error.localizedDescription; return }
         messages[id] = nil; unread[id] = nil
-        if contact.isDemo { demo = nil; demoEngine = nil; return }
+        if contact.isDemo {
+            for group in groups where group.isDemo == true { messages[group.chatID] = nil; unread[group.chatID] = nil }
+            groups.removeAll { $0.isDemo == true }
+            demo = nil; demoEngine = nil
+            return
+        }
         // Deleting the own inbound queue tells the contact's app that the connection is gone (their sends get 404).
         let client = contact.inbound.flatMap { try? relay(for: $0.server) }
         Task {
@@ -506,15 +543,20 @@ final class AppStore: ObservableObject {
         return false
     }
 
-    func send(_ content: PrivatePayload.Content, to id: String) async -> Bool {
+    func send(_ content: PrivatePayload.Content, to id: String, forwarded: Bool = false, quote: Quote? = nil) async -> Bool {
         guard !shouldCover, let me = identity, let key = publicKey else { return false }
+        if let group = self.group(forChat: id) {
+            do { try await sendToGroup(group, content: content, forwarded: forwarded, quote: quote, me: me); return true }
+            catch { self.error = error.localizedDescription; return false }
+        }
         var appended: UUID?
         do {
             guard let contact = self.contact(id) else { throw GhostError.unknownContact }
             guard !contact.blocked else { throw GhostError.blocked }
             guard contact.verified else { throw GhostError.unverified }
             guard contact.state != .disconnected else { throw GhostError.disconnected }
-            let payload = try PrivatePayload(sender: me, recipient: contact.ghostID, content: content, lifetime: settings.lifetime)
+            let payload = try PrivatePayload(sender: me, recipient: contact.ghostID, content: content, lifetime: contact.lifetime ?? settings.lifetime,
+                                             forwarded: forwarded, quote: quote)
             guard (messages[id]?.count ?? 0) < Limits.maxMessagesPerContact,
                   attachmentBytes + (payload.photo?.count ?? 0) + (payload.voice?.count ?? 0) + (payload.file?.data.count ?? 0) < Limits.maxPhotoMemory else { throw GhostError.limit }
             if contact.isDemo {
@@ -578,10 +620,28 @@ final class AppStore: ObservableObject {
             // A repeated hello means the joiner never saw our ready (it expired or was lost): answer again.
             Task { await self.sendProtocol(.ready, to: contactID) }
         }
+        switch payload.kind {
+        case .groupUpdate, .groupLeave, .groupIntro:
+            Task { await self.handleGroupControl(payload, from: contactID) }
+            return
+        case .reaction, .retract:
+            applySignal(payload, from: contactID)
+            return
+        default: break
+        }
+        if payload.content != nil, let info = payload.group {
+            // Group content counts only from a current member of a group this device joined.
+            guard let group = self.group(info.id), group.state == .joined, group.member(payload.sender) != nil,
+                  (messages[group.chatID]?.count ?? 0) < Limits.maxMessagesPerContact else { return }
+            messages[group.chatID, default: []].append(payload.display(outgoing: false, status: .delivered))
+            if activeChatID != group.chatID || shouldCover { unread[group.chatID, default: 0] += 1 }
+            incomingFeedback()
+            return
+        }
         if payload.content != nil {
             messages[contactID, default: []].append(payload.display(outgoing: false, status: .delivered))
             if activeChatID != contactID || shouldCover { unread[contactID, default: 0] += 1 }
-            incomingFeedback()
+            if self.contact(contactID)?.muted != true { incomingFeedback() }
         }
     }
 
@@ -612,8 +672,27 @@ final class AppStore: ObservableObject {
     private func refreshNetworkStatus() {
         let hasQueues = contacts.contains { $0.inbound != nil && $0.state != .disconnected } || !invites.isEmpty
         if !hasQueues {
+            if lastServerCheck == .distantPast {
+                networkHealthy = false
+                networkStatus = String(localized: "Provjera servera…")
+            }
+            Task { await checkServerIfIdle() }
+        }
+    }
+
+    /// With no conversations there is nothing to poll, so the status comes from a plain health check
+    /// of the default relay (at most every 30 seconds).
+    private func checkServerIfIdle() async {
+        let hasQueues = contacts.contains { $0.inbound != nil && $0.state != .disconnected } || !invites.isEmpty
+        guard identity != nil, !hasQueues, Date().timeIntervalSince(lastServerCheck) > 30 else { return }
+        lastServerCheck = Date()
+        do {
+            try await relay(for: AppConfig.defaultServer).health()
+            networkHealthy = true
+            networkStatus = String(localized: "Server dostupan · HTTPS")
+        } catch {
             networkHealthy = false
-            networkStatus = String(localized: "Nema aktivnih veza")
+            networkStatus = String(localized: "Server nije dostupan")
         }
     }
 
@@ -721,6 +800,542 @@ final class AppStore: ObservableObject {
         }
     }
 
+    // MARK: - Groups
+
+    func group(_ id: String) -> GhostGroup? { groups.first { $0.id == id } }
+
+    func group(forChat chatID: String) -> GhostGroup? {
+        guard chatID.hasPrefix(GhostGroup.chatPrefix) else { return nil }
+        return group(String(chatID.dropFirst(GhostGroup.chatPrefix.count)))
+    }
+
+    private func updateGroup(_ id: String, _ change: (inout GhostGroup) -> Void) {
+        guard let i = groups.firstIndex(where: { $0.id == id }) else { return }
+        let old = groups[i]
+        change(&groups[i])
+        guard groups[i] != old else { return }
+        do { try persistMetadata() } catch { groups[i] = old; self.error = error.localizedDescription }
+    }
+
+    /// Contacts shown in the chat list: introduced group connections appear only once verified or once they write 1:1.
+    var listedContacts: [Contact] {
+        contacts.filter { !$0.isIntroduced || $0.verified || !(messages[$0.id] ?? []).isEmpty }
+    }
+
+    /// Contacts that can be put into a group: verified, reachable, not blocked, not the Ghost Lab.
+    var groupCandidates: [Contact] {
+        contacts.filter { $0.verified && !$0.blocked && !$0.isDemo && $0.state != .disconnected }
+    }
+
+    /// Chats a message can be forwarded to.
+    var forwardTargets: [ChatTarget] {
+        contacts.filter { $0.verified && !$0.blocked && $0.state != .disconnected }
+            .map { ChatTarget(id: $0.id, title: $0.title, isGroup: false) }
+        + groups.filter { $0.state == .joined }.map { ChatTarget(id: $0.chatID, title: $0.title, isGroup: true) }
+    }
+
+    /// A member's name: the own contact name first, otherwise the name the admin gave.
+    func displayName(_ id: GhostID, in group: GhostGroup?) -> String {
+        if id == identity { return String(localized: "Ti") }
+        if let contact = contacts.first(where: { $0.ghostID == id }), !contact.name.isEmpty { return contact.name }
+        if let member = group?.member(id), !member.name.isEmpty { return member.name }
+        return id.short
+    }
+
+    enum MemberLink { case me, connected, connecting, unreachable }
+
+    /// How this device reaches a member: directly, still connecting, or not at all.
+    func link(to member: GroupMember) -> MemberLink {
+        if member.ghostID == identity { return .me }
+        guard let contact = contacts.first(where: { $0.ghostID == member.ghostID }) else { return .connecting }
+        if contact.blocked || contact.state == .disconnected { return .unreachable }
+        return contact.state == .connected ? .connected : .connecting
+    }
+
+    func reachableMembers(of group: GhostGroup) -> Int {
+        group.members.filter { link(to: $0) == .connected || link(to: $0) == .connecting }.count
+    }
+
+    /// Admin: a new group from own verified contacts. Members get an invitation they can accept or decline.
+    func createGroup(name: String, memberIDs: [String]) async -> GhostGroup? {
+        guard !busy, let me = identity, let key = publicKey else { return nil }
+        let picked = groupCandidates.filter { memberIDs.contains($0.id) }
+        guard !picked.isEmpty, picked.count < GhostGroup.maxMembers, groups.count < Limits.maxGroups else {
+            self.error = GhostError.limit.localizedDescription
+            return nil
+        }
+        busy = true; defer { busy = false }
+        let members = [GroupMember(ghostID: me, name: "", identityKey: key)]
+            + picked.map { GroupMember(ghostID: $0.ghostID, name: $0.name, identityKey: $0.identityKey) }
+        let group = GhostGroup(id: GhostGroup.newID(), name: String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(80)),
+                               admin: me, members: members, state: .joined, createdAt: Date())
+        groups.append(group)
+        do { try persistMetadata() } catch {
+            groups.removeAll { $0.id == group.id }
+            self.error = error.localizedDescription
+            return nil
+        }
+        messages[group.chatID] = []
+        await broadcastUpdate(group)
+        return group
+    }
+
+    /// A group with the Ghost Lab contact as the other member, to try groups and forwarding on one device.
+    func addDemoGroup() async {
+        if demo == nil { await addDemo() }
+        guard let me = identity, let key = publicKey, let lab = contacts.first(where: { $0.isDemo }),
+              !groups.contains(where: { $0.isDemo == true }) else { return }
+        let group = GhostGroup(id: GhostGroup.newID(), name: "Ghost Lab", admin: me,
+                               members: [GroupMember(ghostID: me, name: "", identityKey: key),
+                                         GroupMember(ghostID: lab.ghostID, name: lab.name, identityKey: lab.identityKey)],
+                               state: .joined, createdAt: Date(), isDemo: true)
+        groups.append(group)
+        messages[group.chatID] = []
+        notice = String(localized: "Ghost Lab grupa je lokalni test: Ghost Lab odgovara na svaku poruku u grupi.")
+    }
+
+    func acceptGroup(_ id: String) async {
+        guard let group = self.group(id), group.state == .invited else { return }
+        updateGroup(id) { $0.state = .joined }
+        if messages[group.chatID] == nil { messages[group.chatID] = [] }
+        if let joined = self.group(id) { await connectMembers(of: joined) }
+    }
+
+    /// Declining an invitation, leaving, or (for the admin) deleting the group for everyone.
+    func leaveGroup(_ id: String) async {
+        guard let me = identity, let group = self.group(id) else { return }
+        if group.admin == me {
+            await broadcastUpdate(group, dissolved: true)
+        } else if let admin = contacts.first(where: { $0.ghostID == group.admin }) {
+            await sendControl(.groupLeave, info: GroupInfo(id: id), to: admin.id)
+        }
+        removeGroupLocally(id)
+    }
+
+    func renameGroup(_ id: String, to name: String) async {
+        guard let me = identity, let group = self.group(id), group.admin == me else { return }
+        updateGroup(id) { $0.name = String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(80)) }
+        if let updated = self.group(id) { await broadcastUpdate(updated) }
+    }
+
+    func addMembers(_ contactIDs: [String], to id: String) async {
+        guard let me = identity, let group = self.group(id), group.admin == me else { return }
+        let added = groupCandidates.filter { contactIDs.contains($0.id) && group.member($0.ghostID) == nil }
+            .map { GroupMember(ghostID: $0.ghostID, name: $0.name, identityKey: $0.identityKey) }
+        guard !added.isEmpty else { return }
+        guard group.members.count + added.count <= GhostGroup.maxMembers else { self.error = GhostError.limit.localizedDescription; return }
+        updateGroup(id) { $0.members += added }
+        if let updated = self.group(id) { await broadcastUpdate(updated) }
+    }
+
+    func removeMember(_ member: GhostID, from id: String) async {
+        guard let me = identity, let group = self.group(id), group.admin == me, member != me, group.member(member) != nil else { return }
+        updateGroup(id) { $0.members.removeAll { $0.ghostID == member } }
+        if let updated = self.group(id) { await broadcastUpdate(updated, alsoTo: [member]) }
+        cleanupIntroducedContacts()
+    }
+
+    private func removeGroupLocally(_ id: String) {
+        guard let group = self.group(id) else { return }
+        let old = groups
+        groups.removeAll { $0.id == id }
+        do { try persistMetadata() } catch { groups = old; self.error = error.localizedDescription; return }
+        messages[group.chatID] = nil; unread[group.chatID] = nil
+        cleanupIntroducedContacts()
+    }
+
+    /// One message, encrypted separately for every reachable member over the pairwise sessions.
+    private func sendToGroup(_ group: GhostGroup, content: PrivatePayload.Content, forwarded: Bool, quote: Quote?, me: GhostID) async throws {
+        let lifetime = group.lifetime ?? settings.lifetime
+        guard group.state == .joined else { throw GhostError.unavailable }
+        if group.isDemo == true {
+            // Ghost Lab group: the same encryption round trip as the Ghost Lab chat, entirely on this device.
+            guard let lab = contacts.first(where: { $0.isDemo }), let demo, let demoEngine, let key = publicKey else { throw GhostError.unavailable }
+            let payload = try PrivatePayload(sender: me, recipient: lab.ghostID, content: content, lifetime: lifetime,
+                                             group: group.id, forwarded: forwarded, quote: quote)
+            messages[group.chatID, default: []].append(payload.display(outgoing: true, status: .sending))
+            let wire = try await demoEngine.encrypt(payload)
+            let echo = try await demo.respond(to: wire, senderKey: key)
+            let opened = try await demoEngine.decrypt(echo, expectedKey: lab.identityKey)
+            accept(opened.payload, from: lab.id)
+            updateStatus(payload.id, in: group.chatID, status: .local)
+            return
+        }
+        let targets = group.members.filter { $0.ghostID != me }
+            .compactMap { member in contacts.first { $0.ghostID == member.ghostID } }
+            .filter { !$0.blocked && !$0.isDemo && $0.state != .disconnected && $0.outbound != nil }
+        guard !targets.isEmpty else { throw GhostError.groupNotConnected }
+        let messageID = UUID()
+        let first = try PrivatePayload(sender: me, recipient: targets[0].ghostID, content: content, lifetime: lifetime,
+                                       id: messageID, group: group.id, forwarded: forwarded, quote: quote)
+        let size = (first.photo?.count ?? 0) + (first.voice?.count ?? 0) + (first.file?.data.count ?? 0)
+        guard (messages[group.chatID]?.count ?? 0) < Limits.maxMessagesPerContact,
+              attachmentBytes + size < Limits.maxPhotoMemory else { throw GhostError.limit }
+        messages[group.chatID, default: []].append(first.display(outgoing: true, status: .sending))
+        var failures = 0
+        for contact in targets {
+            guard let outbound = contact.outbound else { continue }
+            do {
+                let payload = contact.ghostID == first.recipient ? first
+                    : try PrivatePayload(sender: me, recipient: contact.ghostID, content: content, lifetime: lifetime,
+                                         now: first.sentAt, id: messageID, group: group.id, forwarded: forwarded, quote: quote)
+                let wire = try await engine.encrypt(payload)
+                try await relay(for: outbound.server).send(wire, to: outbound, expiresAt: payload.expiresAt)
+                if !outbound.secured { updateContact(contact.id) { $0.outbound?.secured = true } }
+            } catch GhostError.queueGone {
+                updateContact(contact.id) { $0.state = .disconnected }
+                failures += 1
+            } catch {
+                failures += 1
+            }
+        }
+        updateStatus(messageID, in: group.chatID, status: failures == 0 ? .accepted : .failed)
+        if failures > 0 && failures < targets.count { notice = String(localized: "Poruka nije stigla do svih članova grupe.") }
+    }
+
+    // MARK: Replies, reactions, retractions, per-chat settings
+
+    /// A reaction to a message; the same emoji again removes it. Sent like a message, shown only as a reaction.
+    func react(_ emoji: String, to messageID: UUID, in chatID: String) async {
+        guard let me = identity, PrivatePayload.isValidEmoji(emoji), !emoji.isEmpty,
+              let index = messages[chatID]?.firstIndex(where: { $0.id == messageID }) else { return }
+        let value = messages[chatID]?[index].reactions[me] == emoji ? "" : emoji
+        messages[chatID]?[index].reactions[me] = value.isEmpty ? nil : value
+        await sendSignal(in: chatID) { recipient, group in
+            PrivatePayload.reaction(sender: me, recipient: recipient, target: messageID, emoji: value, group: group)
+        }
+    }
+
+    /// Takes back one of this device's own messages, here and on the recipients' phones.
+    func retract(_ messageID: UUID, in chatID: String) async {
+        guard let me = identity, let message = messages[chatID]?.first(where: { $0.id == messageID }),
+              message.outgoing, message.sender == me else { return }
+        messages[chatID]?.removeAll { $0.id == messageID }
+        await sendSignal(in: chatID) { recipient, group in
+            PrivatePayload.retraction(sender: me, recipient: recipient, target: messageID, group: group)
+        }
+    }
+
+    /// nil follows the global setting.
+    func setLifetime(_ seconds: TimeInterval?, forChat chatID: String) {
+        let value = seconds.flatMap { (60...PrivatePayload.maxLifetime).contains($0) ? $0 : nil }
+        if let group = self.group(forChat: chatID) { updateGroup(group.id) { $0.lifetime = value } }
+        else { updateContact(chatID) { $0.lifetime = value } }
+    }
+
+    /// A muted contact's mailbox is removed from push registration on the relay: no notification at all.
+    func setMuted(_ id: String, _ muted: Bool) async {
+        guard let contact = self.contact(id), !contact.isDemo else { return }
+        updateContact(id) { $0.muted = muted ? true : nil }
+        guard let queue = contact.inbound else { return }
+        if muted {
+            let prefix = [queue.server, queue.recipientID].joined(separator: "|") + "|"
+            registeredPush = registeredPush.filter { !$0.hasPrefix(prefix) }
+            if let client = try? relay(for: queue.server) { _ = try? await client.notify([queue], token: nil, environment: Self.pushEnvironment) }
+        } else {
+            await syncPush()
+        }
+    }
+
+    /// Reactions and retractions go to the contact, or separately to every reachable group member.
+    private func sendSignal(in chatID: String, _ build: (GhostID, String?) -> PrivatePayload) async {
+        guard let me = identity else { return }
+        if let group = self.group(forChat: chatID) {
+            guard group.state == .joined, group.isDemo != true else { return }
+            for member in group.members where member.ghostID != me {
+                guard let contact = contacts.first(where: { $0.ghostID == member.ghostID }), !contact.blocked, !contact.isDemo,
+                      contact.state != .disconnected, contact.outbound != nil else { continue }
+                let payload = build(member.ghostID, group.id)
+                let delivered = await deliverControl(payload, to: contact.id)
+                if !delivered { controlOutbox.append((contactID: contact.id, payload: payload)) }
+            }
+        } else if let contact = self.contact(chatID), !contact.isDemo, !contact.blocked, contact.state != .disconnected {
+            let payload = build(contact.ghostID, nil)
+            let delivered = await deliverControl(payload, to: contact.id)
+            if !delivered { controlOutbox.append((contactID: contact.id, payload: payload)) }
+        }
+    }
+
+    /// A reaction or retraction from a contact, applied in the chat the message belongs to.
+    private func applySignal(_ payload: PrivatePayload, from contactID: String) {
+        guard let target = payload.target else { return }
+        var chatID = contactID
+        if let info = payload.group {
+            guard let group = self.group(info.id), group.state == .joined, group.member(payload.sender) != nil else { return }
+            chatID = group.chatID
+        }
+        guard let index = messages[chatID]?.firstIndex(where: { $0.id == target }) else { return }
+        switch payload.kind {
+        case .reaction:
+            guard let emoji = payload.emoji else { return }
+            messages[chatID]?[index].reactions[payload.sender] = emoji.isEmpty ? nil : emoji
+        case .retract:
+            // Only the author can take a message back.
+            guard messages[chatID]?[index].sender == payload.sender else { return }
+            messages[chatID]?.remove(at: index)
+        default:
+            return
+        }
+    }
+
+    /// Sends a copy of a message to other chats; every copy is encrypted for its own recipients.
+    func forward(_ message: ChatMessage, to chatIDs: [String]) async -> Int {
+        guard let content = message.content else { return 0 }
+        var sent = 0
+        for id in chatIDs {
+            let ok = await send(content, to: id, forwarded: true)
+            if ok { sent += 1 }
+        }
+        return sent
+    }
+
+    // MARK: Group protocol
+
+    /// Admin: the complete membership to every member, and to removed members so they know.
+    private func broadcastUpdate(_ group: GhostGroup, alsoTo removed: [GhostID] = [], dissolved: Bool = false) async {
+        guard let me = identity, group.admin == me else { return }
+        let info = dissolved ? GroupInfo(id: group.id, admin: me, dissolved: true)
+                             : GroupInfo(id: group.id, name: group.name, admin: me, members: group.members)
+        for target in group.members.map(\.ghostID).filter({ $0 != me }) + removed {
+            guard let contact = contacts.first(where: { $0.ghostID == target }) else { continue }
+            await sendControl(.groupUpdate, info: info, to: contact.id)
+        }
+    }
+
+    private func sendControl(_ kind: PayloadKind, info: GroupInfo, to contactID: String) async {
+        guard let me = identity, let contact = self.contact(contactID), !contact.isDemo else { return }
+        let payload = PrivatePayload.groupControl(kind, sender: me, recipient: contact.ghostID, info: info)
+        let delivered = await deliverControl(payload, to: contactID)
+        if !delivered { controlOutbox.append((contactID: contactID, payload: payload)) }
+    }
+
+    /// True when the relay took the message, or when retrying cannot help anymore.
+    private func deliverControl(_ payload: PrivatePayload, to contactID: String) async -> Bool {
+        guard payload.expiresAt > Date(), let contact = self.contact(contactID),
+              contact.state != .disconnected, let outbound = contact.outbound else { return true }
+        do {
+            let wire = try await engine.encrypt(payload)
+            try await relay(for: outbound.server).send(wire, to: outbound, expiresAt: payload.expiresAt)
+            if !outbound.secured { updateContact(contactID) { $0.outbound?.secured = true } }
+            return true
+        } catch GhostError.queueGone {
+            updateContact(contactID) { $0.state = .disconnected }
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func handleGroupControl(_ payload: PrivatePayload, from contactID: String) async {
+        guard let me = identity, let info = payload.group, let sender = self.contact(contactID), !sender.isDemo else { return }
+        switch payload.kind {
+        case .groupUpdate: await receiveUpdate(info, from: sender, me: me)
+        case .groupLeave: await receiveLeave(info, from: sender, me: me)
+        case .groupIntro: await receiveIntro(info, from: sender, me: me)
+        default: return
+        }
+    }
+
+    private func receiveUpdate(_ info: GroupInfo, from sender: Contact, me: GhostID) async {
+        if let existing = self.group(info.id) {
+            // Only the admin changes a group.
+            guard existing.admin == sender.ghostID else { return }
+            if info.dissolved == true || !(info.members ?? []).contains(where: { $0.ghostID == me }) {
+                let title = existing.title
+                removeGroupLocally(existing.id)
+                notice = info.dissolved == true ? String(localized: "Grupa „\(title)“ je obrisana.")
+                                                : String(localized: "Više nisi član grupe „\(title)“.")
+                return
+            }
+            guard let members = info.members else { return }
+            updateGroup(existing.id) { group in
+                group.name = info.name ?? group.name
+                group.members = members
+            }
+            cleanupIntroducedContacts()
+            if let updated = self.group(info.id), updated.state == .joined { await connectMembers(of: updated) }
+            return
+        }
+        // A new group arrives as an invitation, and only from a contact verified with the safety number.
+        guard info.dissolved != true, let members = info.members, let name = info.name,
+              members.contains(where: { $0.ghostID == me }), groups.count < Limits.maxGroups else { return }
+        guard sender.verified else {
+            notice = String(localized: "\(sender.title) te poziva u grupu, ali sigurnosni broj tog kontakta još nisi potvrdio. Potvrdi ga, pa zamoli da te ponovo doda.")
+            return
+        }
+        let group = GhostGroup(id: info.id, name: name, admin: sender.ghostID, members: members, state: .invited, createdAt: Date())
+        groups.append(group)
+        do { try persistMetadata() } catch { groups.removeAll { $0.id == group.id }; return }
+        notice = String(localized: "\(sender.title) te poziva u grupu „\(group.title)“. Poziv je u listi razgovora.")
+    }
+
+    private func receiveLeave(_ info: GroupInfo, from sender: Contact, me: GhostID) async {
+        guard let group = self.group(info.id), group.admin == me, group.member(sender.ghostID) != nil else { return }
+        let name = displayName(sender.ghostID, in: group)
+        updateGroup(group.id) { $0.members.removeAll { $0.ghostID == sender.ghostID } }
+        guard let updated = self.group(group.id) else { return }
+        notice = String(localized: "\(name) je napustio grupu „\(updated.title)“.")
+        await broadcastUpdate(updated)
+        cleanupIntroducedContacts()
+    }
+
+    private func receiveIntro(_ info: GroupInfo, from sender: Contact, me: GhostID) async {
+        guard let group = self.group(info.id), let other = info.introFor, let link = info.link,
+              let parsed = try? InviteLink.parse(link) else { return }
+        if group.admin == me {
+            // Relay: a member's own invitation, meant for another member of the same group.
+            guard group.member(sender.ghostID) != nil, let target = group.member(other), other != me,
+                  parsed.ghostID == sender.ghostID,
+                  let contact = contacts.first(where: { $0.ghostID == target.ghostID }) else { return }
+            await sendControl(.groupIntro, info: GroupInfo(id: group.id, introFor: sender.ghostID, link: link), to: contact.id)
+            return
+        }
+        // From the admin: an invitation made by member `other` for this device. Its key must match the member list.
+        guard sender.ghostID == group.admin, let member = group.member(other), parsed.ghostID == other,
+              parsed.k == member.identityKey, !contacts.contains(where: { $0.ghostID == other }) else { return }
+        if group.state == .invited {
+            updateGroup(group.id) { $0.pendingIntros = ($0.pendingIntros ?? [:]).merging([other.rawValue: link]) { _, new in new } }
+            return
+        }
+        await joinIntroduction(link, member: member, groupID: group.id)
+    }
+
+    /// Creates the missing direct connections to other members. Of each pair, the member with the lower
+    /// Ghost ID makes the one-time invitation and the admin passes it on, so each pair gets exactly one link.
+    private func connectMembers(of group: GhostGroup) async {
+        guard let me = identity, group.state == .joined else { return }
+        for member in group.members where member.ghostID != me {
+            if let contact = contacts.first(where: { $0.ghostID == member.ghostID }) {
+                if contact.isIntroduced, !(contact.introducedIn ?? []).contains(group.id) {
+                    updateContact(contact.id) { $0.introducedIn = ($0.introducedIn ?? []) + [group.id] }
+                }
+                continue
+            }
+            if let link = group.pendingIntros?[member.ghostID.rawValue] {
+                await joinIntroduction(link, member: member, groupID: group.id)
+                continue
+            }
+            let tag = IntroductionTag(groupID: group.id, member: member.ghostID)
+            guard group.admin != me, me.rawValue < member.ghostID.rawValue,
+                  !invites.contains(where: { $0.introduction == tag }),
+                  let admin = contacts.first(where: { $0.ghostID == group.admin }),
+                  let invite = await createIntroductionInvite(tag: tag, name: member.name) else { continue }
+            introSentAt[invite.id] = Date()
+            await sendControl(.groupIntro, info: GroupInfo(id: group.id, introFor: member.ghostID, link: invite.link), to: admin.id)
+        }
+        if group.pendingIntros != nil { updateGroup(group.id) { $0.pendingIntros = nil } }
+    }
+
+    private func createIntroductionInvite(tag: IntroductionTag, name: String) async -> PendingInvite? {
+        guard identity != nil, let key = publicKey, contacts.count < Limits.maxContacts,
+              invites.count < Limits.maxInvites + Limits.maxContacts else { return nil }
+        var bundleID: UInt32?
+        do {
+            let bundle = try await engine.invitationBundle()
+            bundleID = bundle.preKey.id
+            let linkKey = SecureRandom.bytes(32)
+            let sealed = try InviteCrypto.seal(bundle, key: linkKey)
+            let client = try relay(for: AppConfig.defaultServer)
+            let inbound = try await client.createQueue(invitation: sealed)
+            let link = try InviteLink(v: 1, s: inbound.server, q: inbound.senderID, k: key, x: linkKey).string()
+            let invite = PendingInvite(id: UUID(), name: name, inbound: inbound, link: link, preKeyID: bundle.preKey.id,
+                                       createdAt: Date(), introduction: tag)
+            invites.append(invite)
+            do { try persistMetadata() } catch {
+                invites.removeAll { $0.id == invite.id }
+                try? await client.delete(inbound)
+                throw error
+            }
+            startSync()
+            return invite
+        } catch {
+            if let bundleID { try? await engine.discardBundle(id: bundleID) }
+            return nil
+        }
+    }
+
+    /// Joins a member's introduction link: the same steps as accepting an invitation, without any UI.
+    private func joinIntroduction(_ link: String, member: GroupMember, groupID: String) async {
+        guard let me = identity, member.ghostID != me, !contacts.contains(where: { $0.ghostID == member.ghostID }),
+              contacts.count < Limits.maxContacts, let parsed = try? InviteLink.parse(link),
+              parsed.ghostID == member.ghostID, parsed.k == member.identityKey else { return }
+        let home = AppConfig.defaultServer
+        do {
+            let sealed = try await relay(for: parsed.s).invitation(senderID: parsed.q)
+            let bundle = try InviteCrypto.open(sealed, link: parsed)
+            try await engine.prepareSession(bundle)
+            let inbound = try await relay(for: home).createQueue(invitation: nil)
+            guard !contacts.contains(where: { $0.ghostID == member.ghostID }) else {
+                try? await relay(for: home).delete(inbound)
+                return
+            }
+            let outbound = OutboundQueue(server: parsed.s, senderID: parsed.q,
+                                         senderKey: Curve25519.Signing.PrivateKey().rawRepresentation, secured: false)
+            let contact = Contact(ghostID: member.ghostID, name: member.name, identityKey: parsed.k, state: .connecting,
+                                  inbound: inbound, outbound: outbound, introducedIn: [groupID])
+            contacts.append(contact)
+            do { try persistMetadata() } catch {
+                contacts.removeAll { $0.ghostID == member.ghostID }
+                try? await relay(for: home).delete(inbound)
+                return
+            }
+            startSync()
+            await sendProtocol(.hello, to: contact.id)
+        } catch {
+            // Expired or already used: the inviting member's app sends a fresh link later.
+        }
+    }
+
+    /// Retries undelivered group messages and missing introductions; runs with the protocol retries.
+    private func retryGroupWork(now: Date) async {
+        if !controlOutbox.isEmpty {
+            let pending = controlOutbox
+            controlOutbox = []
+            for item in pending {
+                let delivered = await deliverControl(item.payload, to: item.contactID)
+                if !delivered { controlOutbox.append(item) }
+            }
+        }
+        guard let me = identity else { return }
+        for group in groups where group.state == .joined {
+            await connectMembers(of: group)
+            guard group.admin != me, let admin = contacts.first(where: { $0.ghostID == group.admin }) else { continue }
+            // The admin may have been offline for a day: an introduction on the relay expires after 24 h.
+            for invite in invites {
+                guard let tag = invite.introduction, tag.groupID == group.id,
+                      !contacts.contains(where: { $0.ghostID == tag.member }),
+                      now.timeIntervalSince(introSentAt[invite.id] ?? .distantPast) > 6 * 3600 else { continue }
+                introSentAt[invite.id] = now
+                await sendControl(.groupIntro, info: GroupInfo(id: group.id, introFor: tag.member, link: invite.link), to: admin.id)
+            }
+        }
+    }
+
+    /// Introduced connections live only as long as a shared group; verified ones stay as ordinary contacts.
+    private func cleanupIntroducedContacts() {
+        guard let me = identity else { return }
+        for contact in contacts where contact.isIntroduced {
+            let remaining = (contact.introducedIn ?? []).filter { id in
+                guard let group = self.group(id), group.state == .joined else { return false }
+                return group.member(contact.ghostID) != nil && group.member(me) != nil
+            }
+            if remaining.isEmpty {
+                if contact.verified || !(messages[contact.id] ?? []).isEmpty {
+                    updateContact(contact.id) { $0.introducedIn = nil }
+                } else {
+                    deleteContact(contact.id)
+                }
+            } else if remaining != contact.introducedIn {
+                updateContact(contact.id) { $0.introducedIn = remaining }
+            }
+        }
+        for invite in invites {
+            guard let tag = invite.introduction else { continue }
+            if let group = self.group(tag.groupID), group.state == .joined, group.member(tag.member) != nil { continue }
+            Task { await self.cancelInvite(invite.id) }
+        }
+    }
+
     // MARK: - Push notifications
 
     /// Debug builds from Xcode get APNs sandbox tokens; TestFlight and App Store builds get production tokens.
@@ -746,7 +1361,7 @@ final class AppStore: ObservableObject {
                 return
             }
             do {
-                guard try await center.requestAuthorization(options: [.alert, .sound]) else { return }
+                guard try await center.requestAuthorization(options: [.alert, .sound, .badge]) else { return }
             } catch { if !quiet { self.error = error.localizedDescription }; return }
             var value = settings; value.notificationsEnabled = true; updateSettings(value)
             registeredPush = []
@@ -781,6 +1396,11 @@ final class AppStore: ObservableObject {
             var value = settings; value.notificationsEnabled = false; updateSettings(value)
             await unregisterPush()
         }
+        // Users who allowed notifications before badges existed: ask for the badge too. iOS shows no dialog once
+        // the user has decided; if it is not granted, Badges can be switched on in iOS Settings.
+        if settings.notificationsEnabled && allowed {
+            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+        }
     }
 
     private func deviceTokenChanged(_ token: String?) async {
@@ -793,7 +1413,7 @@ final class AppStore: ObservableObject {
     }
 
     private var pushQueues: [InboundQueue] {
-        contacts.filter { !$0.isDemo && $0.state != .disconnected }.compactMap(\.inbound) + invites.map(\.inbound)
+        contacts.filter { !$0.isDemo && $0.state != .disconnected && $0.muted != true }.compactMap(\.inbound) + invites.map(\.inbound)
     }
 
     private func pushKey(_ queue: InboundQueue, _ token: String) -> String {
@@ -871,7 +1491,8 @@ final class AppStore: ObservableObject {
         }
         for client in relays.values { await client.close() }
         relays = [:]; demo = nil; demoEngine = nil
-        identity = nil; publicKey = nil; contacts = []; invites = []; messages = [:]; unread = [:]; seen = [:]; registeredPush = []
+        identity = nil; publicKey = nil; contacts = []; invites = []; groups = []; messages = [:]; unread = [:]; seen = [:]; registeredPush = []
+        controlOutbox = []; introSentAt = [:]
         settings = AppSettings(); locked = false; pendingLink = nil
         refreshNetworkStatus()
         if deleted < jobs.count {

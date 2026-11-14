@@ -10,7 +10,7 @@ struct PrivacyShield: ViewModifier {
                 GhostTheme.background.ignoresSafeArea()
                 VStack(spacing: 24) {
                     GhostMark()
-                    Text("GHOST ECC").font(.title2.bold())
+                    Text("GHOST TALK").font(.title2.bold())
                     if !store.covered && !(store.captured && store.settings.hideDuringCapture) {
                         Button("Otključaj") { Task { await store.unlock() } }.buttonStyle(.borderedProminent)
                     }

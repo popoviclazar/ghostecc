@@ -10,7 +10,7 @@
 # Ponovno pokretanje sa istim domenom ažurira kod i konfiguraciju; sandučići ostaju.
 # Opcije:
 #   --apns-key /root/AuthKey_XXXXXXXXXX.p8 --team-id TEAMID   uključuje push notifikacije
-#   --topic net.ghostecc.app                                  bundle ID aplikacije (podrazumijevano)
+#   --topic net.lazarp.ghostecc.app                           bundle ID aplikacije (podrazumijevano)
 #   --no-ssh-hardening                                        ne mijenja SSH podešavanja
 
 set -euo pipefail
@@ -36,14 +36,15 @@ HARDEN_SSH=1
 APNS_KEY=""
 APNS_KEY_ID=""
 TEAM_ID=""
-TOPIC="net.ghostecc.app"
+TOPIC="net.lazarp.ghostecc.app"
+TOPIC_SET=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-ssh-hardening) HARDEN_SSH=0 ;;
     --apns-key) [ $# -ge 2 ] || fail "--apns-key traži putanju do .p8 fajla."; APNS_KEY="$2"; shift ;;
     --apns-key-id) [ $# -ge 2 ] || fail "--apns-key-id traži vrijednost."; APNS_KEY_ID="$2"; shift ;;
     --team-id) [ $# -ge 2 ] || fail "--team-id traži vrijednost."; TEAM_ID="$2"; shift ;;
-    --topic) [ $# -ge 2 ] || fail "--topic traži bundle ID."; TOPIC="$2"; shift ;;
+    --topic) [ $# -ge 2 ] || fail "--topic traži bundle ID."; TOPIC="$2"; TOPIC_SET=1; shift ;;
     -h|--help) usage; exit 0 ;;
     -*) fail "nepoznata opcija $1" ;;
     *) [ -z "$DOMAIN" ] || fail "navedi samo jedan domen."; DOMAIN="$1" ;;
@@ -150,6 +151,10 @@ if [ -n "$APNS_KEY" ]; then
   install -m 0600 "$APNS_KEY" "$APNS_DIR/apns.p8"
   printf 'GHOST_APNS_KEY_ID=%s\nGHOST_APNS_TEAM_ID=%s\nGHOST_APNS_TOPIC=%s\n' "$APNS_KEY_ID" "$TEAM_ID" "$TOPIC" >"$APNS_DIR/apns.env"
   chmod 0600 "$APNS_DIR/apns.env"
+fi
+if [ -z "$APNS_KEY" ] && [ "$TOPIC_SET" -eq 1 ] && [ -f "$APNS_DIR/apns.env" ]; then
+  [[ "$TOPIC" =~ ^[A-Za-z0-9.-]+$ ]] || fail "--topic mora biti bundle ID aplikacije."
+  sed -i "s/^GHOST_APNS_TOPIC=.*/GHOST_APNS_TOPIC=$TOPIC/" "$APNS_DIR/apns.env"
 fi
 PUSH_LINE=""
 [ -f "$APNS_DIR/apns.p8" ] && [ -f "$APNS_DIR/apns.env" ] && PUSH_LINE="LoadCredential=apns.p8:/etc/ghost-relay/apns.p8"

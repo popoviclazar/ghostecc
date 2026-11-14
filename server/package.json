@@ -1,7 +1,7 @@
 {
   "name": "ghost-relay",
   "version": "1.0.0",
-  "description": "Ghost ECC relay: anonymous one-way queues, ciphertext only, RAM-only message storage.",
+  "description": "Ghost Talk relay: anonymous one-way queues, ciphertext only, RAM-only message storage.",
   "private": true,
   "type": "module",
   "engines": { "node": ">=20" },

@@ -64,7 +64,7 @@ final class SignalStore: IdentityKeyStore, SessionStore, PreKeyStore, SignedPreK
         let bytes = baseKey.serialize()
         guard !(state.usedKyberBases[key] ?? []).contains(bytes) else { throw GhostError.invalidPayload }
         state.usedKyberBases[key, default: []].append(bytes)
-        // Every Ghost ECC Kyber prekey belongs to exactly one invitation, so it is one-time and deleted after use.
+        // Every Ghost Talk Kyber prekey belongs to exactly one invitation, so it is one-time and deleted after use.
         state.kyberPreKeys.removeValue(forKey: String(id))
     }
     func discardBundle(id: UInt32) {

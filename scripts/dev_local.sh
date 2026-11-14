@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ghost ECC: lokalni server za testiranje na Macu. Pokreće se iz Terminala, iz foldera projekta.
+# Ghost Talk: lokalni server za testiranje na Macu. Pokreće se iz Terminala, iz foldera projekta.
 #
 #   bash scripts/dev_local.sh              server + HTTPS na https://localhost:8443 (simulatori)
 #   bash scripts/dev_local.sh --tunnel     privremena javna HTTPS adresa (pravi iPhone)
@@ -99,7 +99,7 @@ open_link() {
   case "$choice" in ''|*[!0-9]*) fail "nepoznat izbor." ;; esac
   udid=$(printf '%s\n' "$lines" | sed -n "${choice}p" | grep -oE "$UDID_PATTERN")
   [ -n "$udid" ] || fail "nepoznat izbor."
-  xcrun simctl openurl "$udid" "$url" || fail "simulator nije otvorio link. Da li je Ghost ECC instaliran na njemu?"
+  xcrun simctl openurl "$udid" "$url" || fail "simulator nije otvorio link. Da li je Ghost Talk instaliran na njemu?"
   say "Link je otvoren u simulatoru $udid. U aplikaciji upiši ime kontakta i dodirni Poveži se."
 }
 

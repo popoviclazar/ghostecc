@@ -19,7 +19,8 @@ ET.parse(root / 'GhostECC.xcodeproj/xcshareddata/xcschemes/GhostECC.xcscheme')
 
 info = plistlib.loads((root / 'GhostECC/Info.plist').read_bytes())
 assert info['CFBundleURLTypes'][0]['CFBundleURLSchemes'] == ['ghost-ecc']
-assert info['ITSAppUsesNonExemptEncryption'] is True
+# Encryption is declared per build in App Store Connect's questionnaire, so no export key is hard-coded.
+assert 'ITSAppUsesNonExemptEncryption' not in info and 'ITSEncryptionExportComplianceCode' not in info
 privacy = plistlib.loads((root / 'GhostECC/PrivacyInfo.xcprivacy').read_bytes())
 assert privacy['NSPrivacyTracking'] is False
 for p in (root / 'GhostECC/Assets.xcassets').rglob('Contents.json'):
@@ -69,6 +70,8 @@ for table in (root / 'GhostECC/Localization').glob('*.lproj/*.strings'):
         for l in lines:
             k, v = pair.match(l).groups()
             assert k.count('%@') == v.count('%@'), f'Placeholder mismatch in {table}: {k}'
-assert 'PBXVariantGroup' in pbx and '"sr-Latn"' in pbx
-assert "'loc-key': locKey" in (root / 'server/src/apns.js').read_text()
+assert 'PBXVariantGroup' in pbx and '"sr-Latn"' not in pbx and 'knownRegions = (en, Base)' in pbx, 'The app is English only'
+assert sorted(t.name for t in (root / 'GhostECC/Localization').glob('*.lproj')) == ['en.lproj'], 'Only en.lproj may exist'
+assert "'loc-key': this.locKey" in (root / 'server/src/apns.js').read_text(), 'Push text must stay the generic localized key'
+assert "PUSH_NEW_MESSAGE" in (root / 'server/src/apns.js').read_text()
 print('Xcode references, Info.plist, privacy manifest, OpenAPI paths, persistence rules and client/server constants: passed.')

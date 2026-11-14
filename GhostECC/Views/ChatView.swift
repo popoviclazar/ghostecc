@@ -17,12 +17,18 @@ struct ChatView: View {
     @State private var importTask: Task<Void, Never>?
     @State private var importingFile = false
     @State private var pendingFile: FileAttachment?
+    @State private var forwarding: ChatMessage?
+    @State private var replyingTo: ChatMessage?
+    static let reactionChoices = ["❤️", "👍", "😂", "😮", "😢", "🙏"]
     @StateObject private var recorder = VoiceRecorder()
     @StateObject private var player = VoicePlayer()
     @FocusState private var composing: Bool
     private var contact: Contact? { store.contact(contactID) }
+    /// The same screen serves group chats; their id starts with "group:".
+    private var group: GhostGroup? { store.group(forChat: contactID) }
     private var messages: [ChatMessage] { store.messages[contactID] ?? [] }
     private var canSend: Bool {
+        if let group { return group.state == .joined && !importing }
         guard let contact else { return false }
         return contact.verified && !contact.blocked && contact.state != .disconnected && !importing
     }
@@ -32,36 +38,27 @@ struct ChatView: View {
         VStack(spacing: 0) {
             if let contact {
                 banner(contact)
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        if messages.isEmpty { emptyState }
-                        LazyVStack(spacing: 0) {
-                            ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
-                                let grouped = index > 0 && messages[index - 1].outgoing == message.outgoing
-                                MessageBubble(message: message, contactID: contactID, player: player)
-                                    .padding(.top, grouped ? 3 : 12)
-                                    .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
-                            }
-                        }.padding(.horizontal, 12).padding(.bottom, 10).animation(.spring(duration: 0.3), value: messages.count)
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .defaultScrollAnchor(.bottom)
-                    .onChange(of: messages.count) { _, _ in
-                        if let last = messages.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
-                    }
-                }
-                composer(contact)
+                messageList
+                composer(locked: contact.blocked || contact.state == .disconnected)
+            } else if let group {
+                groupBanner(group)
+                messageList
+                composer(locked: group.state != .joined)
             } else {
                 ContentUnavailableView("Kontakt je uklonjen", systemImage: "person.crop.circle.badge.xmark")
             }
         }
         .background(GhostTheme.background)
-        .navigationTitle(contact?.title ?? String(localized: "Razgovor")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(contact?.title ?? group?.title ?? String(localized: "Razgovor")).navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
-            Button { details = true } label: { Image(systemName: "shield.lefthalf.filled") }.accessibilityLabel("Detalji i sigurnosni broj")
+            Button { details = true } label: { Image(systemName: group == nil ? "shield.lefthalf.filled" : "person.3") }
+                .accessibilityLabel(group == nil ? String(localized: "Detalji i sigurnosni broj") : String(localized: "Detalji grupe"))
         }
-        .sheet(isPresented: $details) { ContactDetailView(contactID: contactID) }
+        .sheet(isPresented: $details) {
+            if let group { GroupDetailView(groupID: group.id) } else { ContactDetailView(contactID: contactID) }
+        }
+        .sheet(item: $forwarding) { message in ForwardView(message: message, from: contactID) }
         .sheet(isPresented: $photoPreview, onDismiss: { pendingPhoto = nil }) { photoSheet }
         .photosPicker(isPresented: $pickingPhoto, selection: $photoItem, matching: .images)
         .fileImporter(isPresented: $importingFile, allowedContentTypes: [.item], allowsMultipleSelection: false) { result in
@@ -74,7 +71,8 @@ struct ChatView: View {
                             titleVisibility: .visible, presenting: pendingFile) { file in
             Button("Pošalji") {
                 pendingFile = nil
-                Task { if await store.send(.file(file), to: contactID) { sentFeedback() } }
+                let quote = currentQuote; replyingTo = nil
+                Task { if await store.send(.file(file), to: contactID, quote: quote) { sentFeedback() } }
             }
             Button("Otkaži", role: .cancel) { pendingFile = nil }
         } message: { file in
@@ -88,6 +86,48 @@ struct ChatView: View {
         .onChange(of: photoItem) { _, item in loadPhoto(item) }
         .onChange(of: phase) { _, newPhase in if newPhase == .background { clearComposer() } }
     }
+
+    private var messageList: some View {
+        ScrollViewReader { proxy in
+                    ScrollView {
+                        if messages.isEmpty { emptyState }
+                        LazyVStack(spacing: 0) {
+                            ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
+                                let grouped = index > 0 && messages[index - 1].outgoing == message.outgoing
+                                    && messages[index - 1].sender == message.sender
+                                let name = (group != nil && !message.outgoing && !grouped) ? store.displayName(message.sender, in: group) : nil
+                                MessageBubble(message: message, contactID: contactID, player: player, senderName: name)
+                                    .padding(.top, grouped ? 3 : 12)
+                                    .contextMenu {
+                                        if canSend && message.content != nil {
+                                            Button { replyingTo = message; composing = true } label: { Label("Odgovori", systemImage: "arrowshape.turn.up.left") }
+                                            Menu {
+                                                ForEach(Self.reactionChoices, id: \.self) { emoji in
+                                                    Button { Task { await store.react(emoji, to: message.id, in: contactID) } } label: { Text(verbatim: emoji) }
+                                                }
+                                            } label: { Label("Reaguj", systemImage: "face.smiling") }
+                                        }
+                                        if message.content != nil && !store.forwardTargets.isEmpty {
+                                            Button { forwarding = message } label: { Label("Proslijedi", systemImage: "arrowshape.turn.up.right") }
+                                        }
+                                        if message.outgoing && canSend {
+                                            Button(role: .destructive) { Task { await store.retract(message.id, in: contactID) } } label: {
+                                                Label("Obriši za sve", systemImage: "trash")
+                                            }
+                                        }
+                                    }
+                                    .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
+                            }
+                        }.padding(.horizontal, 12).padding(.bottom, 10).animation(.spring(duration: 0.3), value: messages.count)
+                    }
+                    .scrollDismissesKeyboard(.interactively)
+                    .defaultScrollAnchor(.bottom)
+                    .onChange(of: messages.count) { _, _ in
+                        if let last = messages.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
+                    }
+                }
+    }
+
 
     // MARK: - Pieces
 
@@ -121,7 +161,46 @@ struct ChatView: View {
         }.font(.caption).multilineTextAlignment(.center).padding(.horizontal, 16).padding(.vertical, 8)
     }
 
-    @ViewBuilder private func composer(_ contact: Contact) -> some View {
+    @ViewBuilder private func groupBanner(_ group: GhostGroup) -> some View {
+        let others = group.members.filter { store.link(to: $0) != .me }
+        let connected = others.filter { store.link(to: $0) == .connected }.count
+        Group {
+            if group.state == .invited {
+                Label("Prihvati poziv u listi razgovora da bi učestvovao.", systemImage: "envelope.badge").foregroundStyle(.orange)
+            } else if connected < others.count {
+                Button { details = true } label: {
+                    Label("Povezano \(String(connected)) od \(String(others.count)) članova · ostali se povezuju", systemImage: "hourglass")
+                }.foregroundStyle(.secondary)
+            } else {
+                Label("Šifrovano s kraja na kraj · \(String(group.members.count)) članova", systemImage: "lock.fill").foregroundStyle(.secondary)
+            }
+        }.font(.caption).multilineTextAlignment(.center).padding(.horizontal, 16).padding(.vertical, 8)
+    }
+
+    /// The message being answered, sent along with whatever is sent next.
+    private var currentQuote: Quote? {
+        replyingTo.map { Quote(id: $0.id, sender: $0.sender, preview: Quote.previewText(for: $0)) }
+    }
+
+    @ViewBuilder private func composer(locked: Bool) -> some View {
+        VStack(spacing: 0) {
+            if let replyingTo, !recorder.recording {
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 2).fill(GhostTheme.blue).frame(width: 3, height: 32)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: store.displayName(replyingTo.sender, in: group)).font(.caption.bold()).foregroundStyle(GhostTheme.blue)
+                        Text(verbatim: Quote.previewText(for: replyingTo)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                    Spacer()
+                    Button { self.replyingTo = nil } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+                        .accessibilityLabel("Otkaži odgovor")
+                }.padding(.horizontal, 14).padding(.vertical, 8).background(.bar)
+            }
+            composerInput(locked: locked)
+        }
+    }
+
+    @ViewBuilder private func composerInput(locked: Bool) -> some View {
         if recorder.recording {
             HStack(spacing: 14) {
                 Button { recorder.cancel() } label: { Image(systemName: "trash").font(.title3).frame(width: 40, height: 44) }
@@ -145,7 +224,7 @@ struct ChatView: View {
                     .lineLimit(1...6).textInputAutocapitalization(.sentences).autocorrectionDisabled()
                     .focused($composing).padding(.horizontal, 14).padding(.vertical, 10)
                     .background(GhostTheme.panel, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .disabled(contact.blocked || contact.state == .disconnected)
+                    .disabled(locked)
                     .onChange(of: draft) { _, value in
                         guard value.utf8.count > Limits.maxTextBytes else { return }
                         var trimmed = value
@@ -173,7 +252,8 @@ struct ChatView: View {
                 PrimaryButton(title: "Pošalji fotografiju", disabled: !canSend) {
                     guard let data = pendingPhoto else { return }
                     photoPreview = false; pendingPhoto = nil
-                    Task { if await store.send(photo: data, to: contactID) { sentFeedback() } }
+                    let quote = currentQuote; replyingTo = nil
+                    Task { if await store.send(.photo(data), to: contactID, quote: quote) { sentFeedback() } }
                 }.padding()
             }.navigationTitle("Fotografija").navigationBarTitleDisplayMode(.inline)
                 .toolbar { Button("Otkaži") { photoPreview = false; pendingPhoto = nil } }
@@ -189,7 +269,8 @@ struct ChatView: View {
     private func sentFeedback() { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
     private func sendText() {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        Task { if await store.send(text: text, to: contactID) { draft = ""; sentFeedback() } }
+        let quote = currentQuote
+        Task { if await store.send(.text(text), to: contactID, quote: quote) { draft = ""; replyingTo = nil; sentFeedback() } }
     }
     private func clearComposer() {
         importTask?.cancel(); draft = ""; pendingPhoto = nil; photoItem = nil; photoPreview = false; composing = false
@@ -200,7 +281,7 @@ struct ChatView: View {
         player.stop()
         Task {
             guard await recorder.requestPermission() else {
-                store.error = String(localized: "Dozvoli pristup mikrofonu u iOS podešavanjima: Podešavanja → Ghost ECC → Mikrofon.")
+                store.error = String(localized: "Dozvoli pristup mikrofonu u iOS podešavanjima: Podešavanja → Ghost Talk → Mikrofon.")
                 return
             }
             guard !store.shouldCover, canSend else { return }
@@ -210,7 +291,8 @@ struct ChatView: View {
     }
     private func finishRecording() {
         guard let wav = recorder.stop() else { return }
-        Task { if await store.send(.voice(wav), to: contactID) { sentFeedback() } }
+        let quote = currentQuote; replyingTo = nil
+        Task { if await store.send(.voice(wav), to: contactID, quote: quote) { sentFeedback() } }
     }
     /// Reads the picked file into memory; the app never copies it to its own storage.
     private func loadFile(_ url: URL) {
@@ -248,7 +330,20 @@ struct MessageBubble: View {
     let message: ChatMessage
     let contactID: String
     @ObservedObject var player: VoicePlayer
+    /// Shown above the first of a run of incoming messages in a group.
+    var senderName: String? = nil
     @State private var showingPhoto = false
+    private struct ReactionCount: Identifiable {
+        let emoji: String
+        let count: Int
+        let mine: Bool
+        var id: String { emoji }
+    }
+    private var reactionSummary: [ReactionCount] {
+        Dictionary(grouping: message.reactions, by: { $0.value }).map { emoji, entries in
+            ReactionCount(emoji: emoji, count: entries.count, mine: entries.contains { $0.key == store.identity })
+        }.sorted { $0.count != $1.count ? $0.count > $1.count : $0.emoji < $1.emoji }
+    }
     private var shape: UnevenRoundedRectangle {
         UnevenRoundedRectangle(topLeadingRadius: 20, bottomLeadingRadius: message.outgoing ? 20 : 6,
                                bottomTrailingRadius: message.outgoing ? 6 : 20, topTrailingRadius: 20, style: .continuous)
@@ -257,6 +352,24 @@ struct MessageBubble: View {
         HStack(spacing: 0) {
             if message.outgoing { Spacer(minLength: 60) }
             VStack(alignment: message.outgoing ? .trailing : .leading, spacing: 6) {
+                if let senderName {
+                    Text(verbatim: senderName).font(.caption.bold()).foregroundStyle(GhostTheme.blue).padding(.horizontal, 6)
+                }
+                if message.forwarded {
+                    Label("Proslijeđeno", systemImage: "arrowshape.turn.up.right").font(.caption2).foregroundStyle(.secondary).padding(.horizontal, 6)
+                }
+                if let quote = message.quote {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: store.displayName(quote.sender, in: store.group(forChat: contactID)))
+                            .font(.caption.bold()).foregroundStyle(GhostTheme.blue)
+                        Text(verbatim: quote.preview).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                    }
+                    .padding(.leading, 12).padding(.trailing, 10).padding(.vertical, 6)
+                    .frame(maxWidth: 240, alignment: .leading)
+                    .background(GhostTheme.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(alignment: .leading) { RoundedRectangle(cornerRadius: 2).fill(GhostTheme.blue).frame(width: 3).padding(.vertical, 6).padding(.leading, 4) }
+                    .accessibilityElement(children: .combine)
+                }
                 if let preview = message.preview {
                     Button { showingPhoto = true } label: {
                         Image(uiImage: preview).resizable().scaledToFit()
@@ -279,6 +392,17 @@ struct MessageBubble: View {
                     }
                     .padding(.horizontal, 14).padding(.vertical, 10)
                     .background(message.outgoing ? AnyShapeStyle(GhostTheme.outgoing) : AnyShapeStyle(GhostTheme.secondaryPanel), in: shape)
+                }
+                if !message.reactions.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(reactionSummary) { item in
+                            Button { Task { await store.react(item.emoji, to: message.id, in: contactID) } } label: {
+                                Text(verbatim: item.count > 1 ? "\(item.emoji) \(item.count)" : item.emoji).font(.caption)
+                                    .padding(.horizontal, 8).padding(.vertical, 3)
+                                    .background(item.mine ? AnyShapeStyle(GhostTheme.blue.opacity(0.35)) : AnyShapeStyle(GhostTheme.panel), in: Capsule())
+                            }.buttonStyle(.plain)
+                        }
+                    }
                 }
                 if message.outgoing && message.status == .failed && message.wire != nil {
                     Button { Task { await store.retry(message.id, in: contactID) } } label: {

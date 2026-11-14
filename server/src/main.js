@@ -60,6 +60,7 @@ if (keyFile && fs.existsSync(keyFile)) {
     });
     pusher = new Pusher({ store, send: (token, environment) => apns.send(token, environment), log: (message) => console.error(`ghost-relay: ${message}`) });
     store.onMessage = (recipientId) => pusher.messageArrived(recipientId);
+    store.onFetch = (recipientId) => pusher.fetched(recipientId);
   } catch (error) { fail(`APNs: ${error.message}`); }
 }
 

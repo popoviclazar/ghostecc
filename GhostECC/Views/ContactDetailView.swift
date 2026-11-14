@@ -54,6 +54,18 @@ struct ContactDetailView: View {
                         } else if let loadError { Text(loadError).foregroundStyle(.orange); Button("Pokušaj ponovo") { Task { await loadNumber() } } }
                         else { ProgressView("Priprema broja…") }
                     }
+                    if !contact.isDemo {
+                        Section {
+                            Picker(selection: Binding(get: { contact.lifetime ?? 0 }, set: { store.setLifetime($0 == 0 ? nil : $0, forChat: contactID) })) {
+                                Text("Kao u podešavanjima").tag(0.0); Text("5 minuta").tag(300.0); Text("1 sat").tag(3600.0); Text("24 sata").tag(86_400.0)
+                            } label: { Label("Trajanje poruka", systemImage: "timer") }
+                            Toggle(isOn: Binding(get: { contact.muted == true }, set: { value in Task { await store.setMuted(contactID, value) } })) {
+                                Label("Utišaj obavještenja", systemImage: "bell.slash")
+                            }
+                        } header: { Text("Ovaj razgovor") } footer: {
+                            Text("Trajanje važi za poruke koje šalješ u ovom razgovoru. Za utišan kontakt server ne šalje obavještenja; poruke stižu kad otvoriš aplikaciju.")
+                        }
+                    }
                     Section {
                         Button(contact.blocked ? String(localized: "Odblokiraj kontakt") : String(localized: "Blokiraj kontakt"), role: contact.blocked ? nil : .destructive) {
                             store.setBlocked(contactID, value: !contact.blocked)

@@ -6,6 +6,8 @@ enum AppConfig {
     static let sourceCode = URL(string: "https://github.com/popoviclazar/ghostecc")!
     static let privacyPolicy = URL(string: "https://popoviclazar.github.io/ghostecc/privacy.html")!
     static let support = URL(string: "https://popoviclazar.github.io/ghostecc/support.html")!
+    /// Region-neutral App Store link, for recommending the app.
+    static let appStore = URL(string: "https://apps.apple.com/app/id6826897860")!
     static var version: String {
         let info = Bundle.main.infoDictionary
         let short = info?["CFBundleShortVersionString"] as? String ?? "?"
